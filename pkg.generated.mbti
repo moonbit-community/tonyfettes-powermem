@@ -1,0 +1,139 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "tonyfettes/powermem"
+
+import {
+  "moonbitlang/core/debug",
+  "moonbitlang/core/json",
+}
+
+// Values
+
+// Errors
+pub(all) suberror PowerMemError {
+  HttpError(status_code~ : Int, body~ : String)
+  ApiError(String)
+  ParseError(String)
+  RequestError(String)
+} derive(@debug.Debug)
+
+// Types and methods
+pub struct Client {
+  base_url : String
+  api_key : String?
+}
+pub async fn Client::batch_create_memories(Self, memories~ : Array[MemoryInput], user_id? : String, agent_id? : String, run_id? : String) -> Json raise PowerMemError
+pub async fn Client::batch_delete_memories(Self, memory_ids? : Array[String], user_id? : String, agent_id? : String) -> DeleteResult raise PowerMemError
+pub async fn Client::batch_update_memories(Self, updates~ : Array[MemoryUpdateInput]) -> Json raise PowerMemError
+pub async fn Client::create_agent_memory(Self, agent_id~ : String, content~ : String, user_id? : String, run_id? : String) -> MemoryData raise PowerMemError
+pub async fn Client::create_memory(Self, content~ : String, user_id? : String, agent_id? : String, run_id? : String, metadata? : Json, infer? : Bool) -> MemoryData raise PowerMemError
+pub async fn Client::delete_all_memories(Self, user_id? : String, agent_id? : String, run_id? : String) -> DeleteResult raise PowerMemError
+pub async fn Client::delete_memory(Self, memory_id~ : String) -> DeleteResult raise PowerMemError
+pub async fn Client::delete_user_memories(Self, user_id~ : String) -> DeleteResult raise PowerMemError
+pub async fn Client::delete_user_profile(Self, user_id~ : String) -> Json raise PowerMemError
+pub async fn Client::export_memories(Self, format? : String, limit? : Int) -> String raise PowerMemError
+pub async fn Client::extract_user_profile(Self, user_id~ : String, messages~ : Array[Message], extraction_type? : String, language? : String, strict_mode? : Bool, role_filter? : String, custom_topics? : Array[String]) -> UserProfile raise PowerMemError
+pub async fn Client::get_memory(Self, memory_id~ : String) -> MemoryData raise PowerMemError
+pub async fn Client::get_memory_quality(Self) -> QualityMetrics raise PowerMemError
+pub async fn Client::get_memory_stats(Self, time_range? : String) -> Json raise PowerMemError
+pub async fn Client::get_metrics(Self) -> String raise PowerMemError
+pub async fn Client::get_shared_memories(Self, agent_id~ : String, limit? : Int, offset? : Int) -> MemoryList raise PowerMemError
+pub async fn Client::get_user_memories(Self, user_id~ : String, limit? : Int, offset? : Int) -> MemoryList raise PowerMemError
+pub async fn Client::get_user_profile(Self, user_id~ : String) -> UserProfile raise PowerMemError
+pub async fn Client::health(Self) -> HealthStatus raise PowerMemError
+pub async fn Client::list_agent_memories(Self, agent_id~ : String, limit? : Int, offset? : Int) -> MemoryList raise PowerMemError
+pub async fn Client::list_memories(Self, limit? : Int, offset? : Int, sort_by? : String, user_id? : String, agent_id? : String, run_id? : String) -> MemoryList raise PowerMemError
+pub async fn Client::list_memory_users(Self) -> Array[String] raise PowerMemError
+pub async fn Client::list_user_profiles(Self, limit? : Int, offset? : Int, fuzzy_match? : String) -> Json raise PowerMemError
+pub fn Client::new(base_url? : String, api_key? : String) -> Self
+pub async fn Client::search(Self, query~ : String, user_id? : String, agent_id? : String, run_id? : String, filters? : Json, limit? : Int) -> SearchResponse raise PowerMemError
+pub async fn Client::search_get(Self, query~ : String, user_id? : String, agent_id? : String, run_id? : String, limit? : Int) -> SearchResponse raise PowerMemError
+pub async fn Client::share_agent_memories(Self, agent_id~ : String, target_agent_id~ : String, memory_ids~ : Array[String]) -> Json raise PowerMemError
+pub async fn Client::system_status(Self) -> SystemStatus raise PowerMemError
+pub async fn Client::update_memory(Self, memory_id~ : String, content? : String, metadata? : Json) -> MemoryData raise PowerMemError
+pub async fn Client::update_user_memory(Self, user_id~ : String, memory_id~ : String, content? : String, metadata? : Json) -> MemoryData raise PowerMemError
+
+pub(all) struct DeleteResult {
+  deleted_count : Int
+} derive(Show, ToJson, @json.FromJson)
+
+pub(all) struct HealthStatus {
+  status : String
+} derive(Show, ToJson, @json.FromJson)
+
+pub(all) struct MemoryData {
+  id : String
+  content : String
+  user_id : String?
+  agent_id : String?
+  run_id : String?
+  metadata : Json?
+  created_at : String?
+  updated_at : String?
+} derive(Show, ToJson, @json.FromJson)
+
+pub(all) struct MemoryInput {
+  content : String
+  user_id : String?
+  agent_id : String?
+  run_id : String?
+  metadata : Json?
+  infer : Bool?
+} derive(Show, ToJson, @json.FromJson)
+
+pub(all) struct MemoryList {
+  memories : Array[MemoryData]
+  total : Int
+  limit : Int
+  offset : Int
+} derive(Show, ToJson, @json.FromJson)
+
+pub(all) struct MemoryUpdateInput {
+  memory_id : String
+  content : String?
+  metadata : Json?
+} derive(Show, ToJson, @json.FromJson)
+
+pub(all) struct Message {
+  role : String
+  content : String
+} derive(Show, ToJson, @json.FromJson)
+
+pub(all) struct QualityMetrics {
+  low_quality_count : Int
+  quality_issues_distribution : Json?
+} derive(Show, ToJson, @json.FromJson)
+
+pub(all) struct SearchResponse {
+  results : Array[SearchResult]
+  total : Int
+  query : String
+} derive(Show, ToJson, @json.FromJson)
+
+pub(all) struct SearchResult {
+  memory_id : String
+  content : String
+  relevance_score : Double
+  metadata : Json?
+} derive(Show, ToJson, @json.FromJson)
+
+pub(all) struct SystemStatus {
+  version : String
+  status : String
+  storage_type : String?
+  llm_provider : String?
+  uptime_seconds : Double?
+  dependencies : Json?
+  start_time : String?
+} derive(Show, ToJson, @json.FromJson)
+
+pub(all) struct UserProfile {
+  user_id : String
+  profile_content : String?
+  topics : Json?
+  updated_at : String?
+} derive(Show, ToJson, @json.FromJson)
+
+// Type aliases
+
+// Traits
+
