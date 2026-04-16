@@ -8,7 +8,7 @@ pub(all) struct MemoryData {
   metadata : Json?
   created_at : String?
   updated_at : String?
-} derive(Show, ToJson, FromJson)
+} derive(ToJson, FromJson)
 
 ///|
 pub(all) struct MemoryList {
@@ -16,7 +16,7 @@ pub(all) struct MemoryList {
   total : Int
   limit : Int
   offset : Int
-} derive(Show, ToJson, FromJson)
+} derive(Debug, ToJson, FromJson)
 
 ///|
 pub(all) struct SearchResult {
@@ -24,14 +24,14 @@ pub(all) struct SearchResult {
   content : String
   relevance_score : Double
   metadata : Json?
-} derive(Show, ToJson, FromJson)
+} derive(ToJson, FromJson)
 
 ///|
 pub(all) struct SearchResponse {
   results : Array[SearchResult]
   total : Int
   query : String
-} derive(Show, ToJson, FromJson)
+} derive(Debug, ToJson, FromJson)
 
 ///|
 pub(all) struct UserProfile {
@@ -39,12 +39,12 @@ pub(all) struct UserProfile {
   profile_content : String?
   topics : Json?
   updated_at : String?
-} derive(Show, ToJson, FromJson)
+} derive(ToJson, FromJson)
 
 ///|
 pub(all) struct HealthStatus {
   status : String
-} derive(Show, ToJson, FromJson)
+} derive(Debug, ToJson, FromJson)
 
 ///|
 pub(all) struct SystemStatus {
@@ -55,15 +55,15 @@ pub(all) struct SystemStatus {
   uptime_seconds : Double?
   dependencies : Json?
   start_time : String?
-} derive(Show, ToJson, FromJson)
+} derive(ToJson, FromJson)
 
 ///|
 pub(all) struct QualityMetrics {
   low_quality_count : Int
   quality_issues_distribution : Json?
-} derive(Show, ToJson, FromJson)
+} derive(ToJson, FromJson)
 
 ///|
 pub(all) struct DeleteResult {
   deleted_count : Int
-} derive(Show, ToJson, FromJson)
+} derive(Debug, ToJson, FromJson)
