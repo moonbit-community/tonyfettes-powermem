@@ -16,7 +16,7 @@ pub(all) struct MemoryList {
   total : Int
   limit : Int
   offset : Int
-} derive(Debug, ToJson, FromJson)
+} derive(ToJson, FromJson)
 
 ///|
 pub(all) struct SearchResult {
@@ -31,7 +31,7 @@ pub(all) struct SearchResponse {
   results : Array[SearchResult]
   total : Int
   query : String
-} derive(Debug, ToJson, FromJson)
+} derive(ToJson, FromJson)
 
 ///|
 pub(all) struct UserProfile {

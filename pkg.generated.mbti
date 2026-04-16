@@ -85,7 +85,7 @@ pub(all) struct MemoryList {
   total : Int
   limit : Int
   offset : Int
-} derive(ToJson, @debug.Debug, @json.FromJson)
+} derive(ToJson, @json.FromJson)
 
 pub(all) struct MemoryUpdateInput {
   memory_id : String
@@ -107,7 +107,7 @@ pub(all) struct SearchResponse {
   results : Array[SearchResult]
   total : Int
   query : String
-} derive(ToJson, @debug.Debug, @json.FromJson)
+} derive(ToJson, @json.FromJson)
 
 pub(all) struct SearchResult {
   memory_id : String
