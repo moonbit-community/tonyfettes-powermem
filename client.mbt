@@ -13,11 +13,22 @@ pub fn Client::new(
 }
 
 ///|
-fn build_query_string(params : Array[(String, String)]) -> String {
-  if params.is_empty() {
-    return ""
+/// Parse `base_url` with `@url.Url`, set the API pathname, and attach query
+/// parameters. Returns (origin, path_with_query) for the async HTTP client
+/// which takes those two components separately.
+fn build_request_target(
+  base_url : String,
+  path : String,
+  query : Array[(String, String)],
+) -> (String, String) raise PowerMemError {
+  let url = @url.Url::parse(base_url) catch {
+    e => raise RequestError("invalid base_url: \{e}")
   }
-  "?" + params.map(fn(p) { "\{p.0}=\{p.1}" }).join("&")
+  url.set_pathname("/api/v1" + path)
+  if !query.is_empty() {
+    url.set_search_params(@url.UrlSearchParams::from_pairs(query))
+  }
+  (url.origin(), url.pathname() + url.search())
 }
 
 ///|
@@ -92,25 +103,25 @@ async fn Client::do_json_request(
   query : Array[(String, String)],
   body : Json?,
 ) -> Json raise PowerMemError {
-  let full_path = "/api/v1" + path + build_query_string(query)
+  let (origin, req_path) = build_request_target(self.base_url, path, query)
   let headers = build_default_headers(self.api_key)
-  let http = @http.Client::new(self.base_url, headers~) catch {
+  let http = @http.Client::new(origin, headers~) catch {
     e => raise RequestError("\{e}")
   }
   let resp = try {
     match (meth, body) {
-      (Get, _) => http.get(full_path)
-      (Post, Some(b)) => http.post(full_path, b.stringify())
-      (Post, None) => http.post(full_path, "")
-      (Put, Some(b)) => http.put(full_path, b.stringify())
-      (Put, None) => http.put(full_path, "")
+      (Get, _) => http.get(req_path)
+      (Post, Some(b)) => http.post(req_path, b.stringify())
+      (Post, None) => http.post(req_path, "")
+      (Put, Some(b)) => http.put(req_path, b.stringify())
+      (Put, None) => http.put(req_path, "")
       (_, Some(b)) => {
-        http.request(meth, full_path)
+        http.request(meth, req_path)
         http.write(b.stringify())
         http.end_request()
       }
       (_, None) => {
-        http.request(meth, full_path)
+        http.request(meth, req_path)
         http.end_request()
       }
     }
@@ -139,16 +150,16 @@ async fn Client::do_text_request(
   path : String,
   query : Array[(String, String)],
 ) -> String raise PowerMemError {
-  let full_path = "/api/v1" + path + build_query_string(query)
+  let (origin, req_path) = build_request_target(self.base_url, path, query)
   let headers = build_default_headers(self.api_key)
-  let http = @http.Client::new(self.base_url, headers~) catch {
+  let http = @http.Client::new(origin, headers~) catch {
     e => raise RequestError("\{e}")
   }
   let resp = try {
     match meth {
-      Get => http.get(full_path)
+      Get => http.get(req_path)
       _ => {
-        http.request(meth, full_path)
+        http.request(meth, req_path)
         http.end_request()
       }
     }

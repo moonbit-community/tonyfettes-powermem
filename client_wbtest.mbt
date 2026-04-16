@@ -1,12 +1,38 @@
 ///|
-test "build_query_string empty" {
-  inspect(build_query_string([]), content="")
+test "build_request_target no query" {
+  let (origin, path) = build_request_target(
+    "http://localhost:8000",
+    "/memories",
+    [],
+  )
+  inspect(origin, content="http://localhost:8000")
+  inspect(path, content="/api/v1/memories")
 }
 
 ///|
-test "build_query_string with params" {
-  let params = [("limit", "10"), ("offset", "0"), ("user_id", "u1")]
-  inspect(build_query_string(params), content="?limit=10&offset=0&user_id=u1")
+test "build_request_target with query" {
+  let (origin, path) = build_request_target(
+    "http://example.com:9000",
+    "/memories",
+    [("limit", "10"), ("user_id", "u1")],
+  )
+  inspect(origin, content="http://example.com:9000")
+  inspect(path, content="/api/v1/memories?limit=10&user_id=u1")
+}
+
+///|
+test "build_request_target percent-encodes special characters" {
+  let (_, path) = build_request_target("http://localhost:8000", "/search", [
+    ("query", "hello world & more"),
+  ])
+  // UrlSearchParams encodes space as '+' and '&' as %26
+  inspect(path, content="/api/v1/search?query=hello+world+%26+more")
+}
+
+///|
+test "build_request_target rejects invalid base_url" {
+  let result = try? build_request_target("not a url", "/x", [])
+  guard result is Err(_) else { fail("expected error for invalid base_url") }
 }
 
 ///|
