@@ -2,3 +2,12 @@ _build/
 .mooncakes/
 target/
 *.core
+
+# Python venv for running a local PowerMem server to test against
+.venv/
+.env
+*.db
+*.db-journal
+*.log
+.pmem-server.pid
+logs/
