@@ -1,5 +1,6 @@
 ///|
-/// Create a single memory.
+/// Create memories from content. The LLM extracts individual facts, so
+/// a single input may produce multiple memories.
 pub async fn Client::create_memory(
   self : Client,
   content~ : String,
@@ -8,7 +9,7 @@ pub async fn Client::create_memory(
   run_id? : String,
   metadata? : Json,
   infer? : Bool,
-) -> MemoryData raise PowerMemError {
+) -> Array[MemoryData] raise PowerMemError {
   let body = json_obj([
     ("content", Some(content.to_json())),
     ("user_id", user_id.map(fn(s) { s.to_json() })),
@@ -102,7 +103,7 @@ pub async fn Client::batch_update_memories(
 pub async fn Client::delete_memory(
   self : Client,
   memory_id~ : String,
-) -> DeleteResult raise PowerMemError {
+) -> DeletedMemory raise PowerMemError {
   let json = self.do_json_request(Delete, "/memories/\{memory_id}", [], None)
   parse_response(json)
 }
