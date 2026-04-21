@@ -48,17 +48,18 @@ pub async fn Client::share_agent_memories(
   agent_id~ : String,
   target_agent_id~ : String,
   memory_ids~ : Array[String],
-) -> Json raise PowerMemError {
+) -> AgentShareResult raise PowerMemError {
   let body = json_obj([
     ("target_agent_id", Some(target_agent_id.to_json())),
     ("memory_ids", Some(memory_ids.to_json())),
   ])
-  self.do_json_request(
+  let json = self.do_json_request(
     Post,
     "/agents/\{agent_id}/memories/share",
     [],
     Some(body),
   )
+  parse_response(json)
 }
 
 ///|

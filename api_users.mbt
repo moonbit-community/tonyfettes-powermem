@@ -1,5 +1,8 @@
 ///|
 /// Extract user profile from messages.
+/// Post messages and extract a user profile. The server returns a result
+/// dict whose shape depends on `profile_type` (content vs topics) and on
+/// the underlying `memory.add` result — kept as raw Json.
 pub async fn Client::extract_user_profile(
   self : Client,
   user_id~ : String,
@@ -9,7 +12,7 @@ pub async fn Client::extract_user_profile(
   strict_mode? : Bool,
   role_filter? : String,
   custom_topics? : Array[String],
-) -> UserProfile raise PowerMemError {
+) -> Json raise PowerMemError {
   let body = json_obj([
     ("messages", Some(messages.to_json())),
     ("extraction_type", extraction_type.map(fn(s) { s.to_json() })),
@@ -18,13 +21,7 @@ pub async fn Client::extract_user_profile(
     ("role_filter", role_filter.map(fn(s) { s.to_json() })),
     ("custom_topics", custom_topics.map(fn(arr) { arr.to_json() })),
   ])
-  let json = self.do_json_request(
-    Post,
-    "/users/\{user_id}/profile",
-    [],
-    Some(body),
-  )
-  parse_response(json)
+  self.do_json_request(Post, "/users/\{user_id}/profile", [], Some(body))
 }
 
 ///|
@@ -93,7 +90,7 @@ pub async fn Client::update_user_memory(
 pub async fn Client::delete_user_memories(
   self : Client,
   user_id~ : String,
-) -> DeleteResult raise PowerMemError {
+) -> UserMemoryDeleteResult raise PowerMemError {
   let json = self.do_json_request(
     Delete,
     "/users/\{user_id}/memories",

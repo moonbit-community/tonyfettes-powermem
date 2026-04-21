@@ -115,7 +115,7 @@ pub async fn Client::batch_delete_memories(
   memory_ids? : Array[String],
   user_id? : String,
   agent_id? : String,
-) -> DeleteResult raise PowerMemError {
+) -> BatchDeleteResult raise PowerMemError {
   let body = json_obj([
     ("memory_ids", memory_ids.map(fn(ids) { ids.to_json() })),
     ("user_id", user_id.map(fn(s) { s.to_json() })),

@@ -27,7 +27,7 @@ pub async fn Client::delete_all_memories(
   user_id? : String,
   agent_id? : String,
   run_id? : String,
-) -> DeleteResult raise PowerMemError {
+) -> SystemDeleteResult raise PowerMemError {
   let params : Array[(String, String)] = []
   add_param(params, "user_id", user_id)
   add_param(params, "agent_id", agent_id)

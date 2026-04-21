@@ -72,7 +72,7 @@ pub impl @json.FromJson for MemoryList with from_json(json, path) {
 pub(all) struct SearchResult {
   memory_id : String
   content : String
-  score : Double
+  score : Double?
   metadata : Json?
 }
 
@@ -81,7 +81,7 @@ pub impl ToJson for SearchResult with to_json(self) {
   let m : Map[String, Json] = {}
   m["memory_id"] = self.memory_id.to_json()
   m["content"] = self.content.to_json()
-  m["score"] = self.score.to_json()
+  json_set_opt(m, "score", self.score)
   json_set_opt(m, "metadata", self.metadata)
   Json::object(m)
 }
@@ -92,7 +92,7 @@ pub impl @json.FromJson for SearchResult with from_json(json, path) {
   {
     memory_id: json_require_string(obj, "memory_id", path),
     content: json_require_string(obj, "content", path),
-    score: json_require_double(obj, "score", path),
+    score: json_opt_double(obj, "score"),
     metadata: json_opt_json(obj, "metadata"),
   }
 }
@@ -153,6 +153,33 @@ pub impl @json.FromJson for UserProfile with from_json(json, path) {
 }
 
 ///|
+/// Result of `share_agent_memories`.
+pub(all) struct AgentShareResult {
+  shared_count : Int
+  source_agent_id : String
+  target_agent_id : String
+} derive(Debug)
+
+///|
+pub impl ToJson for AgentShareResult with to_json(self) {
+  Json::object({
+    "shared_count": self.shared_count.to_json(),
+    "source_agent_id": self.source_agent_id.to_json(),
+    "target_agent_id": self.target_agent_id.to_json(),
+  })
+}
+
+///|
+pub impl @json.FromJson for AgentShareResult with from_json(json, path) {
+  let obj = json_as_object(json, path, "AgentShareResult")
+  {
+    shared_count: json_require_int(obj, "shared_count", path),
+    source_agent_id: json_require_string(obj, "source_agent_id", path),
+    target_agent_id: json_require_string(obj, "target_agent_id", path),
+  }
+}
+
+///|
 pub(all) struct HealthStatus {
   status : String
 } derive(Debug)
@@ -176,7 +203,7 @@ pub(all) struct SystemStatus {
   llm_provider : String?
   uptime_seconds : Double?
   dependencies : Json?
-  start_time : String?
+  started_at : String?
 }
 
 ///|
@@ -188,7 +215,7 @@ pub impl ToJson for SystemStatus with to_json(self) {
   json_set_opt(m, "llm_provider", self.llm_provider)
   json_set_opt(m, "uptime_seconds", self.uptime_seconds)
   json_set_opt(m, "dependencies", self.dependencies)
-  json_set_opt(m, "start_time", self.start_time)
+  json_set_opt(m, "started_at", self.started_at)
   Json::object(m)
 }
 
@@ -202,25 +229,25 @@ pub impl @json.FromJson for SystemStatus with from_json(json, path) {
     llm_provider: json_opt_string(obj, "llm_provider"),
     uptime_seconds: json_opt_double(obj, "uptime_seconds"),
     dependencies: json_opt_json(obj, "dependencies"),
-    start_time: json_opt_string(obj, "start_time"),
+    started_at: json_opt_string(obj, "started_at"),
   }
 }
 
 ///|
 pub(all) struct QualityMetrics {
+  total_memories : Int
   low_quality_count : Int
-  quality_issues_distribution : Json?
+  low_quality_ratio : Double
+  quality_criteria : Json?
 }
 
 ///|
 pub impl ToJson for QualityMetrics with to_json(self) {
   let m : Map[String, Json] = {}
+  m["total_memories"] = self.total_memories.to_json()
   m["low_quality_count"] = self.low_quality_count.to_json()
-  json_set_opt(
-    m,
-    "quality_issues_distribution",
-    self.quality_issues_distribution,
-  )
+  m["low_quality_ratio"] = self.low_quality_ratio.to_json()
+  json_set_opt(m, "quality_criteria", self.quality_criteria)
   Json::object(m)
 }
 
@@ -228,10 +255,10 @@ pub impl ToJson for QualityMetrics with to_json(self) {
 pub impl @json.FromJson for QualityMetrics with from_json(json, path) {
   let obj = json_as_object(json, path, "QualityMetrics")
   {
+    total_memories: json_require_int(obj, "total_memories", path),
     low_quality_count: json_require_int(obj, "low_quality_count", path),
-    quality_issues_distribution: json_opt_json(
-      obj, "quality_issues_distribution",
-    ),
+    low_quality_ratio: json_require_double(obj, "low_quality_ratio", path),
+    quality_criteria: json_opt_json(obj, "quality_criteria"),
   }
 }
 
@@ -252,17 +279,133 @@ pub impl @json.FromJson for DeletedMemory with from_json(json, path) {
 }
 
 ///|
-pub(all) struct DeleteResult {
+/// Result of `delete_user_memories`. The server returns a count of what was
+/// deleted along with the user_id for traceability.
+pub(all) struct UserMemoryDeleteResult {
+  user_id : String
   deleted_count : Int
+  failed_count : Int
+  total : Int
 } derive(Debug)
 
 ///|
-pub impl ToJson for DeleteResult with to_json(self) {
-  Json::object({ "deleted_count": self.deleted_count.to_json() })
+pub impl ToJson for UserMemoryDeleteResult with to_json(self) {
+  Json::object({
+    "user_id": self.user_id.to_json(),
+    "deleted_count": self.deleted_count.to_json(),
+    "failed_count": self.failed_count.to_json(),
+    "total": self.total.to_json(),
+  })
 }
 
 ///|
-pub impl @json.FromJson for DeleteResult with from_json(json, path) {
-  let obj = json_as_object(json, path, "DeleteResult")
-  { deleted_count: json_require_int(obj, "deleted_count", path) }
+pub impl @json.FromJson for UserMemoryDeleteResult with from_json(json, path) {
+  let obj = json_as_object(json, path, "UserMemoryDeleteResult")
+  {
+    user_id: json_require_string(obj, "user_id", path),
+    deleted_count: json_require_int(obj, "deleted_count", path),
+    failed_count: json_require_int(obj, "failed_count", path),
+    total: json_require_int(obj, "total", path),
+  }
+}
+
+///|
+/// Result of `delete_all_memories`. `filters` echoes the subset of
+/// `user_id` / `agent_id` / `run_id` that was passed.
+pub(all) struct SystemDeleteResult {
+  deleted : Bool
+  filters : SystemDeleteFilters
+} derive(Debug)
+
+///|
+pub impl ToJson for SystemDeleteResult with to_json(self) {
+  Json::object({
+    "deleted": self.deleted.to_json(),
+    "filters": self.filters.to_json(),
+  })
+}
+
+///|
+pub impl @json.FromJson for SystemDeleteResult with from_json(json, path) {
+  let obj = json_as_object(json, path, "SystemDeleteResult")
+  let filters_json = match obj.get("filters") {
+    Some(v) => v
+    None => Json::object({})
+  }
+  {
+    deleted: match obj.get("deleted") {
+      Some(True) => true
+      Some(False) => false
+      _ =>
+        raise @json.JsonDecodeError(
+          (path.add_key("deleted"), "expected bool"),
+        )
+    },
+    filters: @json.from_json(filters_json, path=path.add_key("filters")),
+  }
+}
+
+///|
+pub(all) struct SystemDeleteFilters {
+  user_id : String?
+  agent_id : String?
+  run_id : String?
+} derive(Debug)
+
+///|
+pub impl ToJson for SystemDeleteFilters with to_json(self) {
+  let m : Map[String, Json] = {}
+  json_set_opt(m, "user_id", self.user_id)
+  json_set_opt(m, "agent_id", self.agent_id)
+  json_set_opt(m, "run_id", self.run_id)
+  Json::object(m)
+}
+
+///|
+pub impl @json.FromJson for SystemDeleteFilters with from_json(json, path) {
+  let obj = json_as_object(json, path, "SystemDeleteFilters")
+  {
+    user_id: json_opt_string(obj, "user_id"),
+    agent_id: json_opt_string(obj, "agent_id"),
+    run_id: json_opt_string(obj, "run_id"),
+  }
+}
+
+///|
+/// Result of `batch_delete_memories`. `deleted` and `failed` are kept as raw
+/// Json because their element shapes (int memory IDs, failure records) depend
+/// on server encoding.
+pub(all) struct BatchDeleteResult {
+  deleted : Json
+  failed : Json?
+  total : Int
+  deleted_count : Int
+  failed_count : Int
+}
+
+///|
+pub impl ToJson for BatchDeleteResult with to_json(self) {
+  let m : Map[String, Json] = {}
+  m["deleted"] = self.deleted
+  json_set_opt(m, "failed", self.failed)
+  m["total"] = self.total.to_json()
+  m["deleted_count"] = self.deleted_count.to_json()
+  m["failed_count"] = self.failed_count.to_json()
+  Json::object(m)
+}
+
+///|
+pub impl @json.FromJson for BatchDeleteResult with from_json(json, path) {
+  let obj = json_as_object(json, path, "BatchDeleteResult")
+  let deleted = match obj.get("deleted") {
+    Some(v) => v
+    None => Json::array([])
+  }
+  {
+    deleted,
+    failed: json_opt_json(obj, "failed"),
+    total: json_require_int(obj, "total", path),
+    deleted_count: json_require_int(obj, "deleted_count", path),
+    failed_count: json_require_int(obj, "failed_count", path),
+  }
 }
