@@ -17,21 +17,39 @@ pub(all) suberror PowerMemError {
 } derive(@debug.Debug)
 
 // Types and methods
+pub(all) struct AgentShareResult {
+  shared_count : Int
+  source_agent_id : String
+  target_agent_id : String
+} derive(@debug.Debug)
+pub impl ToJson for AgentShareResult
+pub impl @json.FromJson for AgentShareResult
+
+pub(all) struct BatchDeleteResult {
+  deleted : Json
+  failed : Json?
+  total : Int
+  deleted_count : Int
+  failed_count : Int
+}
+pub impl ToJson for BatchDeleteResult
+pub impl @json.FromJson for BatchDeleteResult
+
 pub struct Client {
   base_url : String
   api_key : String?
 }
 pub async fn Client::batch_create_memories(Self, memories~ : Array[MemoryInput], user_id? : String, agent_id? : String, run_id? : String) -> Json raise PowerMemError
-pub async fn Client::batch_delete_memories(Self, memory_ids? : Array[String], user_id? : String, agent_id? : String) -> DeleteResult raise PowerMemError
+pub async fn Client::batch_delete_memories(Self, memory_ids? : Array[String], user_id? : String, agent_id? : String) -> BatchDeleteResult raise PowerMemError
 pub async fn Client::batch_update_memories(Self, updates~ : Array[MemoryUpdateInput]) -> Json raise PowerMemError
 pub async fn Client::create_agent_memory(Self, agent_id~ : String, content~ : String, user_id? : String, run_id? : String) -> MemoryData raise PowerMemError
 pub async fn Client::create_memory(Self, content~ : String, user_id? : String, agent_id? : String, run_id? : String, metadata? : Json, infer? : Bool) -> Array[MemoryData] raise PowerMemError
-pub async fn Client::delete_all_memories(Self, user_id? : String, agent_id? : String, run_id? : String) -> DeleteResult raise PowerMemError
+pub async fn Client::delete_all_memories(Self, user_id? : String, agent_id? : String, run_id? : String) -> SystemDeleteResult raise PowerMemError
 pub async fn Client::delete_memory(Self, memory_id~ : String) -> DeletedMemory raise PowerMemError
-pub async fn Client::delete_user_memories(Self, user_id~ : String) -> DeleteResult raise PowerMemError
+pub async fn Client::delete_user_memories(Self, user_id~ : String) -> UserMemoryDeleteResult raise PowerMemError
 pub async fn Client::delete_user_profile(Self, user_id~ : String) -> Json raise PowerMemError
 pub async fn Client::export_memories(Self, format? : String, limit? : Int) -> String raise PowerMemError
-pub async fn Client::extract_user_profile(Self, user_id~ : String, messages~ : Array[Message], extraction_type? : String, language? : String, strict_mode? : Bool, role_filter? : String, custom_topics? : Array[String]) -> UserProfile raise PowerMemError
+pub async fn Client::extract_user_profile(Self, user_id~ : String, messages~ : Array[Message], extraction_type? : String, language? : String, strict_mode? : Bool, role_filter? : String, custom_topics? : Array[String]) -> Json raise PowerMemError
 pub async fn Client::get_memory(Self, memory_id~ : String) -> MemoryData raise PowerMemError
 pub async fn Client::get_memory_quality(Self) -> QualityMetrics raise PowerMemError
 pub async fn Client::get_memory_stats(Self, time_range? : String) -> Json raise PowerMemError
@@ -47,16 +65,10 @@ pub async fn Client::list_user_profiles(Self, limit? : Int, offset? : Int, fuzzy
 pub fn Client::new(base_url? : String, api_key? : String) -> Self
 pub async fn Client::search(Self, query~ : String, user_id? : String, agent_id? : String, run_id? : String, filters? : Json, limit? : Int) -> SearchResponse raise PowerMemError
 pub async fn Client::search_get(Self, query~ : String, user_id? : String, agent_id? : String, run_id? : String, limit? : Int) -> SearchResponse raise PowerMemError
-pub async fn Client::share_agent_memories(Self, agent_id~ : String, target_agent_id~ : String, memory_ids~ : Array[String]) -> Json raise PowerMemError
+pub async fn Client::share_agent_memories(Self, agent_id~ : String, target_agent_id~ : String, memory_ids~ : Array[String]) -> AgentShareResult raise PowerMemError
 pub async fn Client::system_status(Self) -> SystemStatus raise PowerMemError
 pub async fn Client::update_memory(Self, memory_id~ : String, content? : String, metadata? : Json) -> MemoryData raise PowerMemError
 pub async fn Client::update_user_memory(Self, user_id~ : String, memory_id~ : String, content? : String, metadata? : Json) -> MemoryData raise PowerMemError
-
-pub(all) struct DeleteResult {
-  deleted_count : Int
-} derive(@debug.Debug)
-pub impl ToJson for DeleteResult
-pub impl @json.FromJson for DeleteResult
 
 pub(all) struct DeletedMemory {
   memory_id : String
@@ -119,8 +131,10 @@ pub impl ToJson for Message
 pub impl @json.FromJson for Message
 
 pub(all) struct QualityMetrics {
+  total_memories : Int
   low_quality_count : Int
-  quality_issues_distribution : Json?
+  low_quality_ratio : Double
+  quality_criteria : Json?
 }
 pub impl ToJson for QualityMetrics
 pub impl @json.FromJson for QualityMetrics
@@ -136,11 +150,26 @@ pub impl @json.FromJson for SearchResponse
 pub(all) struct SearchResult {
   memory_id : String
   content : String
-  score : Double
+  score : Double?
   metadata : Json?
 }
 pub impl ToJson for SearchResult
 pub impl @json.FromJson for SearchResult
+
+pub(all) struct SystemDeleteFilters {
+  user_id : String?
+  agent_id : String?
+  run_id : String?
+} derive(@debug.Debug)
+pub impl ToJson for SystemDeleteFilters
+pub impl @json.FromJson for SystemDeleteFilters
+
+pub(all) struct SystemDeleteResult {
+  deleted : Bool
+  filters : SystemDeleteFilters
+} derive(@debug.Debug)
+pub impl ToJson for SystemDeleteResult
+pub impl @json.FromJson for SystemDeleteResult
 
 pub(all) struct SystemStatus {
   version : String
@@ -149,10 +178,19 @@ pub(all) struct SystemStatus {
   llm_provider : String?
   uptime_seconds : Double?
   dependencies : Json?
-  start_time : String?
+  started_at : String?
 }
 pub impl ToJson for SystemStatus
 pub impl @json.FromJson for SystemStatus
+
+pub(all) struct UserMemoryDeleteResult {
+  user_id : String
+  deleted_count : Int
+  failed_count : Int
+  total : Int
+} derive(@debug.Debug)
+pub impl ToJson for UserMemoryDeleteResult
+pub impl @json.FromJson for UserMemoryDeleteResult
 
 pub(all) struct UserProfile {
   user_id : String

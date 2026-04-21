@@ -106,7 +106,9 @@ async test "integration/delete_user_memories" {
   guard result.user_id == user else {
     fail("expected user_id \{user}, got \{result.user_id}")
   }
-  guard result.total >= 1 else { fail("expected total >= 1, got \{result.total}") }
+  guard result.total >= 1 else {
+    fail("expected total >= 1, got \{result.total}")
+  }
   guard result.deleted_count + result.failed_count == result.total else {
     fail("counts don't sum to total")
   }
@@ -228,8 +230,22 @@ async test "integration/batch_create_memories" {
   let ts = @async.now()
   let user = "mbt_batchcreate_\{ts}"
   let inputs : Array[@powermem.MemoryInput] = [
-    { content: "The user likes tea", user_id: None, agent_id: None, run_id: None, metadata: None, infer: None },
-    { content: "The user lives in Tokyo", user_id: None, agent_id: None, run_id: None, metadata: None, infer: None },
+    {
+      content: "The user likes tea",
+      user_id: None,
+      agent_id: None,
+      run_id: None,
+      metadata: None,
+      infer: None,
+    },
+    {
+      content: "The user lives in Tokyo",
+      user_id: None,
+      agent_id: None,
+      run_id: None,
+      metadata: None,
+      infer: None,
+    },
   ]
   let result = client.batch_create_memories(memories=inputs, user_id=user)
   let has_total = match result {
@@ -251,9 +267,13 @@ async test "integration/batch_update_memories" {
   )
   guard created.length() > 0 else { fail("no memories created") }
   let updates : Array[@powermem.MemoryUpdateInput] = created.map(fn(m) {
-    { memory_id: m.id, content: Some("The user rides a motorcycle"), metadata: None }
+    {
+      memory_id: m.id,
+      content: Some("The user rides a motorcycle"),
+      metadata: None,
+    }
   })
-  let result = client.batch_update_memories(updates=updates)
+  let result = client.batch_update_memories(updates~)
   match result {
     Object(_) => ()
     _ => fail("expected object response")
@@ -356,10 +376,7 @@ async test "integration/user_profile_lifecycle" {
     { role: "user", content: "Hi, I am Sam and I live in Berlin." },
     { role: "user", content: "I work as a software engineer." },
   ]
-  let extract_result = client.extract_user_profile(
-    user_id=user,
-    messages=messages,
-  )
+  let extract_result = client.extract_user_profile(user_id=user, messages~)
   match extract_result {
     Object(_) => ()
     _ => fail("expected object response from extract")

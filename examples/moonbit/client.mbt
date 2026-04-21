@@ -86,7 +86,8 @@ async fn Client::do_request(
 ///|
 fn unwrap_envelope(json : Json) -> Json raise ApiError {
   match json {
-    Object({ "success": False, "message": String(msg), .. }) => raise Server(msg)
+    Object({ "success": False, "message": String(msg), .. }) =>
+      raise Server(msg)
     Object({ "success": False, .. }) => raise Server("API request failed")
     Object({ "data": data, .. }) => data
     _ => json
@@ -95,7 +96,9 @@ fn unwrap_envelope(json : Json) -> Json raise ApiError {
 
 ///|
 fn[T : @json.FromJson] parse_as(json : Json) -> T raise ApiError {
-  @json.from_json(json) catch { e => raise Parse("\{e}") }
+  @json.from_json(json) catch {
+    e => raise Parse("\{e}")
+  }
 }
 
 ///|
@@ -107,10 +110,12 @@ fn percent_encode(value : String) -> String {
   for i in 0..<bytes.length() {
     let code = bytes.unsafe_get(i).to_int()
     let is_unreserved = (code >= 0x30 && code <= 0x39) ||
-                        (code >= 0x41 && code <= 0x5A) ||
-                        (code >= 0x61 && code <= 0x7A) ||
-                        code == 0x2D || code == 0x2E ||
-                        code == 0x5F || code == 0x7E
+      (code >= 0x41 && code <= 0x5A) ||
+      (code >= 0x61 && code <= 0x7A) ||
+      code == 0x2D ||
+      code == 0x2E ||
+      code == 0x5F ||
+      code == 0x7E
     if is_unreserved {
       out.write_char(Int::unsafe_to_char(code))
     } else {
@@ -207,10 +212,18 @@ async fn Client::list_memories(
   offset? : Int,
 ) -> MemoryList raise ApiError {
   let query : Array[(String, String)] = []
-  if user_id is Some(v) { query.push(("user_id", v)) }
-  if agent_id is Some(v) { query.push(("agent_id", v)) }
-  if limit is Some(v) { query.push(("limit", v.to_string())) }
-  if offset is Some(v) { query.push(("offset", v.to_string())) }
+  if user_id is Some(v) {
+    query.push(("user_id", v))
+  }
+  if agent_id is Some(v) {
+    query.push(("agent_id", v))
+  }
+  if limit is Some(v) {
+    query.push(("limit", v.to_string()))
+  }
+  if offset is Some(v) {
+    query.push(("offset", v.to_string()))
+  }
   parse_as(self.do_request(Get, "/memories", query, None))
 }
 

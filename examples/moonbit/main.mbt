@@ -117,17 +117,21 @@ async fn example_create(
     "source": "moonbit-client-example".to_json(),
     "importance": "high".to_json(),
   })
-  try client.create_memory(
-    content="User likes coffee and goes to Starbucks every morning. They prefer latte.",
-    user_id~,
-    agent_id~,
-    metadata~,
-    infer=true,
-  ) catch {
+  try
+    client.create_memory(
+      content="User likes coffee and goes to Starbucks every morning. They prefer latte.",
+      user_id~,
+      agent_id~,
+      metadata~,
+      infer=true,
+    )
+  catch {
     e => {
       println("  skipped: " + @debug.to_string(e))
       if needs_embedding_hint(e) {
-        println("  (requires an embedding provider configured in the server .env)")
+        println(
+          "  (requires an embedding provider configured in the server .env)",
+        )
       }
       None
     }
@@ -187,13 +191,17 @@ async fn example_search(
         Some(s) => s.to_string()
         None => "-"
       }
-      println("    [\{i + 1}] \{r.memory_id} score=\{score}: \{truncate(r.content, 60)}")
+      println(
+        "    [\{i + 1}] \{r.memory_id} score=\{score}: \{truncate(r.content, 60)}",
+      )
     }
   } catch {
     e => {
       println("  skipped: " + @debug.to_string(e))
       if needs_embedding_hint(e) {
-        println("  (requires an embedding provider configured in the server .env)")
+        println(
+          "  (requires an embedding provider configured in the server .env)",
+        )
       }
     }
   }

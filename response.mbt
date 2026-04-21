@@ -337,9 +337,7 @@ pub impl @json.FromJson for SystemDeleteResult with from_json(json, path) {
       Some(True) => true
       Some(False) => false
       _ =>
-        raise @json.JsonDecodeError(
-          (path.add_key("deleted"), "expected bool"),
-        )
+        raise @json.JsonDecodeError((path.add_key("deleted"), "expected bool"))
     },
     filters: @json.from_json(filters_json, path=path.add_key("filters")),
   }
