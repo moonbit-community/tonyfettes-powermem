@@ -203,10 +203,16 @@ async fn example_delete(client : Client, memory_id~ : String) -> Unit {
 }
 
 ///|
+/// Surrogate-safe shortening for display. Slicing at an arbitrary index
+/// can split a UTF-16 surrogate pair and abort; pattern-matching off the
+/// end is safe. Result length is bounded by `length + 3`, and ends up
+/// under `n` in the common case of memories that are not extremely long.
 fn truncate(s : String, n : Int) -> String {
   if s.length() <= n {
     s
+  } else if s is [.. truncated, _, _, _] {
+    truncated.to_string() + "..."
   } else {
-    s[:n - 3].to_string() + "..."
+    s
   }
 }
