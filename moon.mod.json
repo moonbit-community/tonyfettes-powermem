@@ -5,5 +5,10 @@
     "moonbitlang/async": "0.18.0",
     "tonyfettes/url": "0.3.1"
   },
-  "description": "PowerMem HTTP API client SDK for MoonBit"
+  "readme": "README.mbt.md",
+  "repository": "https://github.com/moonbit-community/tonyfettes-powermem",
+  "license": "Apache-2.0",
+  "keywords": ["powermem", "memory", "http", "client", "sdk"],
+  "description": "PowerMem HTTP API client SDK for MoonBit",
+  "preferred-target": "native"
 }

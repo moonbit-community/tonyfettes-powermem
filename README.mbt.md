@@ -69,14 +69,6 @@ All methods hang off `Client` and are `async`. Errors are reported through the `
 
 **System** (`api_system.mbt`) — `health`, `system_status`, `get_metrics`, `delete_all_memories`.
 
-## Local development
+## Contributing
 
-The repo ships a helper for running a PowerMem server locally (Python 3.12, Ollama, SQLite). See `.env.example` and `scripts/dev-server.sh`:
-
-```bash
-./scripts/dev-server.sh --bg     # start in background
-./scripts/dev-server.sh --stop   # stop
-moon test --target native        # runs unit + integration tests
-```
-
-Integration tests live in `integration_test.mbt` and require the server at `http://127.0.0.1:8000`.
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for local development and how to run the integration tests against a real PowerMem server.
