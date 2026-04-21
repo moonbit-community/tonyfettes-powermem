@@ -55,7 +55,8 @@ POWERMEM_SERVER_API_KEYS=your-api-key-123,another-key-456
 ```bash
 cd examples/moonbit
 
-# Run with default settings (localhost:8000, no auth)
+# Run with default settings (localhost:8000, no auth).
+# `moon run` fetches dependencies on first invocation.
 moon run --target native .
 
 # Or with custom configuration

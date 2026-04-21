@@ -107,9 +107,21 @@ async fn example_create(
     }
     Err(e) => {
       println("  skipped: " + @debug.to_string(e))
-      println("  (requires an embedding provider configured in the server .env)")
+      if needs_embedding_hint(e) {
+        println("  (requires an embedding provider configured in the server .env)")
+      }
       None
     }
+  }
+}
+
+///|
+/// Connection-refused and other transport failures have nothing to do with
+/// the embedding provider — only print that hint for server-side errors.
+fn needs_embedding_hint(err : ApiError) -> Bool {
+  match err {
+    Request(_) => false
+    _ => true
   }
 }
 
@@ -155,7 +167,9 @@ async fn example_search(
     }
     Err(e) => {
       println("  skipped: " + @debug.to_string(e))
-      println("  (requires an embedding provider configured in the server .env)")
+      if needs_embedding_hint(e) {
+        println("  (requires an embedding provider configured in the server .env)")
+      }
     }
   }
 }
