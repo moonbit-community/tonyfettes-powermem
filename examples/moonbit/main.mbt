@@ -48,6 +48,7 @@ async fn run_examples(client : Client) -> Unit {
   let agent_id = "moonbit-example-agent"
 
   example_health(client)
+  example_system_status(client)
   let created = example_create(client, user_id~, agent_id~)
   example_list(client, user_id~)
   example_search(client, user_id~, agent_id~)
@@ -58,9 +59,9 @@ async fn run_examples(client : Client) -> Unit {
       example_delete(client, memory_id=first.id)
     }
     _ => {
-      section("5. Update Memory")
+      section("6. Update Memory")
       println("  skipped (no memories created)")
-      section("6. Delete Memory")
+      section("7. Delete Memory")
       println("  skipped (no memories created)")
     }
   }
@@ -86,12 +87,32 @@ async fn example_health(client : Client) -> Unit {
 }
 
 ///|
+async fn example_system_status(client : Client) -> Unit {
+  section("2. System Status")
+  try {
+    let s = client.system_status()
+    println("  version: \{s.version}")
+    println("  status:  \{s.status}")
+    match s.storage_type {
+      Some(v) => println("  storage: \{v}")
+      None => ()
+    }
+    match s.llm_provider {
+      Some(v) => println("  llm:     \{v}")
+      None => ()
+    }
+  } catch {
+    e => println("  failed: " + @debug.to_string(e))
+  }
+}
+
+///|
 async fn example_create(
   client : Client,
   user_id~ : String,
   agent_id~ : String,
 ) -> Array[Memory]? {
-  section("2. Create Memory")
+  section("3. Create Memory")
   let metadata = Json::object({
     "source": "moonbit-client-example".to_json(),
     "importance": "high".to_json(),
@@ -133,7 +154,7 @@ fn needs_embedding_hint(err : ApiError) -> Bool {
 
 ///|
 async fn example_list(client : Client, user_id~ : String) -> Unit {
-  section("3. List Memories")
+  section("4. List Memories")
   try {
     let list = client.list_memories(user_id~, limit=10)
     println("  total: \{list.total}, showing \{list.memories.length()}:")
@@ -151,7 +172,7 @@ async fn example_search(
   user_id~ : String,
   agent_id~ : String,
 ) -> Unit {
-  section("4. Search Memories")
+  section("5. Search Memories")
   try {
     let resp = client.search_memories(
       query="What beverages does the user like?",
@@ -160,13 +181,13 @@ async fn example_search(
       limit=5,
     )
     println("  query: \{resp.query}")
-    println("  results: \{resp.results.length()}")
+    println("  total: \{resp.total}")
     for i, r in resp.results {
       let score = match r.score {
         Some(s) => s.to_string()
         None => "-"
       }
-      println("    [\{i + 1}] score=\{score}: \{truncate(r.content, 60)}")
+      println("    [\{i + 1}] \{r.memory_id} score=\{score}: \{truncate(r.content, 60)}")
     }
   } catch {
     e => {
@@ -180,13 +201,17 @@ async fn example_search(
 
 ///|
 async fn example_update(client : Client, memory_id~ : String) -> Unit {
-  section("5. Update Memory")
+  section("6. Update Memory")
   try {
     let m = client.update_memory(
       memory_id~,
       content="User loves espresso and visits Starbucks daily",
     )
     println("  updated \{m.id}: \{m.content}")
+    match m.updated_at {
+      Some(ts) => println("  at: \{ts}")
+      None => ()
+    }
   } catch {
     e => println("  skipped: " + @debug.to_string(e))
   }
@@ -194,7 +219,7 @@ async fn example_update(client : Client, memory_id~ : String) -> Unit {
 
 ///|
 async fn example_delete(client : Client, memory_id~ : String) -> Unit {
-  section("6. Delete Memory")
+  section("7. Delete Memory")
   try {
     let d = client.delete_memory(memory_id~)
     println("  deleted \{d.memory_id}")

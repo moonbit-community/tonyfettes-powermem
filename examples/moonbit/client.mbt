@@ -4,7 +4,7 @@
 /// moonbitlang/async.
 
 ///|
-pub suberror ApiError {
+suberror ApiError {
   Http(status_code~ : Int, body~ : String)
   Server(String)
   Parse(String)
@@ -12,13 +12,13 @@ pub suberror ApiError {
 } derive(Debug)
 
 ///|
-pub struct Client {
+struct Client {
   base_url : String
   api_key : String?
 }
 
 ///|
-pub fn Client::new(base_url : String, api_key? : String) -> Client {
+fn Client::new(base_url : String, api_key? : String) -> Client {
   { base_url, api_key }
 }
 
@@ -166,12 +166,12 @@ fn json_object(entries : Array[(String, Json?)]) -> Json {
 // -----------------------------------------------------------------------------
 
 ///|
-pub async fn Client::health(self : Client) -> HealthStatus raise ApiError {
+async fn Client::health(self : Client) -> HealthStatus raise ApiError {
   parse_as(self.do_request(Get, "/system/health", [], None))
 }
 
 ///|
-pub async fn Client::system_status(self : Client) -> SystemStatus raise ApiError {
+async fn Client::system_status(self : Client) -> SystemStatus raise ApiError {
   parse_as(self.do_request(Get, "/system/status", [], None))
 }
 
@@ -180,7 +180,7 @@ pub async fn Client::system_status(self : Client) -> SystemStatus raise ApiError
 // -----------------------------------------------------------------------------
 
 ///|
-pub async fn Client::create_memory(
+async fn Client::create_memory(
   self : Client,
   content~ : String,
   user_id? : String,
@@ -199,7 +199,7 @@ pub async fn Client::create_memory(
 }
 
 ///|
-pub async fn Client::list_memories(
+async fn Client::list_memories(
   self : Client,
   user_id? : String,
   agent_id? : String,
@@ -215,7 +215,7 @@ pub async fn Client::list_memories(
 }
 
 ///|
-pub async fn Client::search_memories(
+async fn Client::search_memories(
   self : Client,
   query~ : String,
   user_id? : String,
@@ -232,7 +232,7 @@ pub async fn Client::search_memories(
 }
 
 ///|
-pub async fn Client::update_memory(
+async fn Client::update_memory(
   self : Client,
   memory_id~ : String,
   content~ : String,
@@ -246,7 +246,7 @@ pub async fn Client::update_memory(
 }
 
 ///|
-pub async fn Client::delete_memory(
+async fn Client::delete_memory(
   self : Client,
   memory_id~ : String,
 ) -> DeletedMemory raise ApiError {

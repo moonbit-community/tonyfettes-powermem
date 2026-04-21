@@ -85,7 +85,26 @@ println("Status: \{health.status}")
   status: healthy
 ```
 
-### 2. Create Memory
+### 2. System Status
+
+Get runtime information about the server — version, status, storage backend, and the active LLM provider.
+
+```moonbit
+let s = client.system_status()
+println("Version: \{s.version}")
+println("Status:  \{s.status}")
+```
+
+**Example Output:**
+
+```
+  version: 1.1.0
+  status:  operational
+  storage: sqlite
+  llm:     ollama
+```
+
+### 3. Create Memory
 
 Create a new memory. When `infer` is enabled, PowerMem uses LLM to automatically extract multiple facts from the content and stores them as separate memories.
 
@@ -115,7 +134,7 @@ for m in memories {
     [3] 672687041749712896: User goes to Starbucks every morning
 ```
 
-### 3. List Memories
+### 4. List Memories
 
 Retrieve a list of memories with pagination and filtering by user or agent.
 
@@ -136,7 +155,7 @@ for m in list.memories {
     [3] 672687041732935680: User is a coffee drinker
 ```
 
-### 4. Search Memories
+### 5. Search Memories
 
 Perform semantic search to find relevant memories based on natural language queries. Results are ranked by relevance score.
 
@@ -146,12 +165,13 @@ let resp = client.search_memories(
   user_id="user-123",
   limit=5,
 )
+println("Total: \{resp.total}")
 for r in resp.results {
   let score = match r.score {
     Some(s) => s.to_string()
     None => "-"
   }
-  println("Score: \{score} - \{r.content}")
+  println("\{r.memory_id} score=\{score}: \{r.content}")
 }
 ```
 
@@ -159,13 +179,13 @@ for r in resp.results {
 
 ```
   query: What beverages does the user like?
-  results: 3
-    [1] score=0.7046449923421033: User is a coffee drinker
-    [2] score=0.6876197672707064: User has preference for latte
-    [3] score=0.5320688635347244: User goes to Starbucks every morning
+  total: 3
+    [1] 672687041732935680 score=0.7046449923421033: User is a coffee drinker
+    [2] 672687041741324288 score=0.6876197672707064: User has preference for latte
+    [3] 672687041749712896 score=0.5320688635347244: User goes to Starbucks every morning
 ```
 
-### 5. Update Memory
+### 6. Update Memory
 
 Update an existing memory's content and/or metadata. The memory ID is required.
 
@@ -175,15 +195,20 @@ let updated = client.update_memory(
   content="User loves espresso and visits Starbucks daily",
 )
 println("Updated \{updated.id}: \{updated.content}")
+match updated.updated_at {
+  Some(ts) => println("At: \{ts}")
+  None => ()
+}
 ```
 
 **Example Output:**
 
 ```
   updated 672687041732935680: User loves espresso and visits Starbucks daily
+  at: 2026-04-21T05:45:47.342816Z
 ```
 
-### 6. Delete Memory
+### 7. Delete Memory
 
 Permanently delete a memory by its ID.
 
@@ -203,7 +228,7 @@ println("Deleted \{deleted.memory_id}")
 PowerMem uses 64-bit Snowflake integers for memory IDs, which exceed MoonBit's 32-bit `Int`. The server sidesteps this by serializing `memory_id` as a JSON string, and this client mirrors that choice:
 
 ```moonbit
-pub(all) struct Memory {
+struct Memory {
   id : String        // always a string — no precision loss, ready for paths and URLs
   content : String
   // ...
@@ -217,7 +242,7 @@ You can pass these IDs directly to `update_memory`, `delete_memory`, and path-bu
 The client raises a typed `ApiError` suberror with specific variants so callers can distinguish transport failures from server-side rejections:
 
 ```moonbit
-pub suberror ApiError {
+suberror ApiError {
   Http(status_code~ : Int, body~ : String)   // 4xx/5xx with response body
   Server(String)                             // success=false envelope from the API
   Parse(String)                              // malformed JSON or unexpected shape
