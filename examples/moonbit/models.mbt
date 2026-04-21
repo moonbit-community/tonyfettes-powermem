@@ -4,7 +4,7 @@
 /// async packages only — no third-party dependencies.
 
 ///|
-struct Memory {
+priv struct Memory {
   id : String
   content : String
   updated_at : String?
@@ -21,7 +21,7 @@ impl @json.FromJson for Memory with from_json(json, path) {
 }
 
 ///|
-struct MemoryList {
+priv struct MemoryList {
   memories : Array[Memory]
   total : Int
 }
@@ -36,7 +36,7 @@ impl @json.FromJson for MemoryList with from_json(json, path) {
 }
 
 ///|
-struct SearchResult {
+priv struct SearchResult {
   memory_id : String
   content : String
   score : Double?
@@ -53,7 +53,7 @@ impl @json.FromJson for SearchResult with from_json(json, path) {
 }
 
 ///|
-struct SearchResponse {
+priv struct SearchResponse {
   results : Array[SearchResult]
   total : Int
   query : String
@@ -70,7 +70,7 @@ impl @json.FromJson for SearchResponse with from_json(json, path) {
 }
 
 ///|
-struct HealthStatus {
+priv struct HealthStatus {
   status : String
 }
 
@@ -81,7 +81,7 @@ impl @json.FromJson for HealthStatus with from_json(json, path) {
 }
 
 ///|
-struct SystemStatus {
+priv struct SystemStatus {
   version : String
   status : String
   storage_type : String?
@@ -100,7 +100,7 @@ impl @json.FromJson for SystemStatus with from_json(json, path) {
 }
 
 ///|
-struct DeletedMemory {
+priv struct DeletedMemory {
   memory_id : String
 }
 

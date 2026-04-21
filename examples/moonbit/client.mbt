@@ -4,7 +4,7 @@
 /// moonbitlang/async.
 
 ///|
-suberror ApiError {
+priv suberror ApiError {
   Http(status_code~ : Int, body~ : String)
   Server(String)
   Parse(String)
@@ -12,7 +12,7 @@ suberror ApiError {
 } derive(Debug)
 
 ///|
-struct Client {
+priv struct Client {
   base_url : String
   api_key : String?
 }
