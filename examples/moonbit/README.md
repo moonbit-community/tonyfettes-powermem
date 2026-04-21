@@ -225,13 +225,14 @@ pub suberror ApiError {
 } derive(Debug)
 ```
 
-Pattern-match to handle each case specifically, or use `try?` to convert raises into a `Result`:
+Use a `try`/`catch` block to handle each case. Pattern-match the caught value to branch on specific variants:
 
 ```moonbit
-let result = try? client.create_memory(content="...", user_id="user-123")
-match result {
-  Ok(memories) => println("created \{memories.length()}")
-  Err(Http(status_code=401, ..)) => println("auth failed — check POWERMEM_API_KEY")
-  Err(e) => println("other failure: \{@debug.to_string(e)}")
+try {
+  let memories = client.create_memory(content="...", user_id="user-123")
+  println("created \{memories.length()}")
+} catch {
+  Http(status_code=401, ..) => println("auth failed — check POWERMEM_API_KEY")
+  e => println("other failure: \{@debug.to_string(e)}")
 }
 ```

@@ -77,10 +77,11 @@ fn section(title : String) -> Unit {
 ///|
 async fn example_health(client : Client) -> Unit {
   section("1. Health Check")
-  let result = try? client.health()
-  match result {
-    Ok(h) => println("  status: \{h.status}")
-    Err(e) => println("  failed: " + @debug.to_string(e))
+  try {
+    let h = client.health()
+    println("  status: \{h.status}")
+  } catch {
+    e => println("  failed: " + @debug.to_string(e))
   }
 }
 
@@ -95,27 +96,27 @@ async fn example_create(
     "source": "moonbit-client-example".to_json(),
     "importance": "high".to_json(),
   })
-  let result = try? client.create_memory(
+  try client.create_memory(
     content="User likes coffee and goes to Starbucks every morning. They prefer latte.",
     user_id~,
     agent_id~,
     metadata~,
     infer=true,
-  )
-  match result {
-    Ok(memories) => {
-      println("  created \{memories.length()} memory(ies):")
-      for i, m in memories {
-        println("    [\{i + 1}] \{m.id}: \{m.content}")
-      }
-      Some(memories)
-    }
-    Err(e) => {
+  ) catch {
+    e => {
       println("  skipped: " + @debug.to_string(e))
       if needs_embedding_hint(e) {
         println("  (requires an embedding provider configured in the server .env)")
       }
       None
+    }
+  } noraise {
+    memories => {
+      println("  created \{memories.length()} memory(ies):")
+      for i, m in memories {
+        println("    [\{i + 1}] \{m.id}: \{m.content}")
+      }
+      Some(memories)
     }
   }
 }
@@ -133,15 +134,14 @@ fn needs_embedding_hint(err : ApiError) -> Bool {
 ///|
 async fn example_list(client : Client, user_id~ : String) -> Unit {
   section("3. List Memories")
-  let result = try? client.list_memories(user_id~, limit=10)
-  match result {
-    Ok(list) => {
-      println("  total: \{list.total}, showing \{list.memories.length()}:")
-      for i, m in list.memories {
-        println("    [\{i + 1}] \{m.id}: \{truncate(m.content, 60)}")
-      }
+  try {
+    let list = client.list_memories(user_id~, limit=10)
+    println("  total: \{list.total}, showing \{list.memories.length()}:")
+    for i, m in list.memories {
+      println("    [\{i + 1}] \{m.id}: \{truncate(m.content, 60)}")
     }
-    Err(e) => println("  skipped: " + @debug.to_string(e))
+  } catch {
+    e => println("  skipped: " + @debug.to_string(e))
   }
 }
 
@@ -152,25 +152,24 @@ async fn example_search(
   agent_id~ : String,
 ) -> Unit {
   section("4. Search Memories")
-  let result = try? client.search_memories(
-    query="What beverages does the user like?",
-    user_id~,
-    agent_id~,
-    limit=5,
-  )
-  match result {
-    Ok(resp) => {
-      println("  query: \{resp.query}")
-      println("  results: \{resp.results.length()}")
-      for i, r in resp.results {
-        let score = match r.score {
-          Some(s) => s.to_string()
-          None => "-"
-        }
-        println("    [\{i + 1}] score=\{score}: \{truncate(r.content, 60)}")
+  try {
+    let resp = client.search_memories(
+      query="What beverages does the user like?",
+      user_id~,
+      agent_id~,
+      limit=5,
+    )
+    println("  query: \{resp.query}")
+    println("  results: \{resp.results.length()}")
+    for i, r in resp.results {
+      let score = match r.score {
+        Some(s) => s.to_string()
+        None => "-"
       }
+      println("    [\{i + 1}] score=\{score}: \{truncate(r.content, 60)}")
     }
-    Err(e) => {
+  } catch {
+    e => {
       println("  skipped: " + @debug.to_string(e))
       if needs_embedding_hint(e) {
         println("  (requires an embedding provider configured in the server .env)")
@@ -182,23 +181,25 @@ async fn example_search(
 ///|
 async fn example_update(client : Client, memory_id~ : String) -> Unit {
   section("5. Update Memory")
-  let result = try? client.update_memory(
-    memory_id~,
-    content="User loves espresso and visits Starbucks daily",
-  )
-  match result {
-    Ok(m) => println("  updated \{m.id}: \{m.content}")
-    Err(e) => println("  skipped: " + @debug.to_string(e))
+  try {
+    let m = client.update_memory(
+      memory_id~,
+      content="User loves espresso and visits Starbucks daily",
+    )
+    println("  updated \{m.id}: \{m.content}")
+  } catch {
+    e => println("  skipped: " + @debug.to_string(e))
   }
 }
 
 ///|
 async fn example_delete(client : Client, memory_id~ : String) -> Unit {
   section("6. Delete Memory")
-  let result = try? client.delete_memory(memory_id~)
-  match result {
-    Ok(d) => println("  deleted \{d.memory_id}")
-    Err(e) => println("  skipped: " + @debug.to_string(e))
+  try {
+    let d = client.delete_memory(memory_id~)
+    println("  deleted \{d.memory_id}")
+  } catch {
+    e => println("  skipped: " + @debug.to_string(e))
   }
 }
 
