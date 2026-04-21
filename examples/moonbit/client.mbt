@@ -248,11 +248,11 @@ async fn Client::search_memories(
 async fn Client::update_memory(
   self : Client,
   memory_id~ : String,
-  content~ : String,
+  content? : String,
   metadata? : Json,
 ) -> Memory raise ApiError {
   let body = json_object([
-    ("content", Some(content.to_json())),
+    ("content", content.map(fn(s) { s.to_json() })),
     ("metadata", metadata),
   ])
   parse_as(self.do_request(Put, "/memories/\{memory_id}", [], Some(body)))
