@@ -91,10 +91,15 @@ async fn example_create(
   agent_id~ : String,
 ) -> Array[Memory]? {
   section("2. Create Memory")
+  let metadata = Json::object({
+    "source": "moonbit-client-example".to_json(),
+    "importance": "high".to_json(),
+  })
   let result = try? client.create_memory(
     content="User likes coffee and goes to Starbucks every morning. They prefer latte.",
     user_id~,
     agent_id~,
+    metadata~,
     infer=true,
   )
   match result {

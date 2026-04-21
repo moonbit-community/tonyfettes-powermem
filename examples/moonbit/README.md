@@ -90,10 +90,15 @@ println("Status: \{health.status}")
 Create a new memory. When `infer` is enabled, PowerMem uses LLM to automatically extract multiple facts from the content and stores them as separate memories.
 
 ```moonbit
+let metadata = Json::object({
+  "source": "conversation".to_json(),
+  "importance": "high".to_json(),
+})
 let memories = client.create_memory(
   content="User likes coffee and goes to Starbucks every morning. They prefer latte.",
   user_id="user-123",
   agent_id="agent-456",
+  metadata~,
   infer=true,
 )
 for m in memories {
