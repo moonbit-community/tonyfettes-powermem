@@ -2,19 +2,29 @@
 /// Integration tests — require a running PowerMem server.
 ///
 ///   ./scripts/dev-server.sh --bg   # start server first
-///   moon test --target native --filter "integration/*"
+///   POWERMEM_INTEGRATION=1 moon test --target native --filter "integration/*"
 ///   ./scripts/dev-server.sh --stop
 
 ///|
+fn integration_client() -> @powermem.Client? {
+  guard @env.get_env_var("POWERMEM_INTEGRATION") is Some(_) else { return None }
+  let base_url = match @env.get_env_var("POWERMEM_BASE_URL") {
+    Some(v) => v
+    None => "http://127.0.0.1:8000"
+  }
+  Some(@powermem.Client::new(base_url~))
+}
+
+///|
 async test "integration/health" {
-  let client = @powermem.Client::new(base_url="http://127.0.0.1:8000")
+  guard integration_client() is Some(client) else { return }
   let status = client.health()
   inspect(status.status, content="healthy")
 }
 
 ///|
 async test "integration/create" {
-  let client = @powermem.Client::new(base_url="http://127.0.0.1:8000")
+  guard integration_client() is Some(client) else { return }
   let ts = @async.now()
   let user = "mbt_create_\{ts}"
   let created = client.create_memory(
@@ -27,7 +37,7 @@ async test "integration/create" {
 
 ///|
 async test "integration/search" {
-  let client = @powermem.Client::new(base_url="http://127.0.0.1:8000")
+  guard integration_client() is Some(client) else { return }
   let ts = @async.now()
   let user = "mbt_search_\{ts}"
   let created = client.create_memory(
@@ -43,7 +53,7 @@ async test "integration/search" {
 
 ///|
 async test "integration/get_and_delete" {
-  let client = @powermem.Client::new(base_url="http://127.0.0.1:8000")
+  guard integration_client() is Some(client) else { return }
   let ts = @async.now()
   let user = "mbt_getdel_\{ts}"
   let created = client.create_memory(content="The user uses vim", user_id=user)
@@ -67,7 +77,7 @@ async test "integration/get_and_delete" {
 
 ///|
 async test "integration/list" {
-  let client = @powermem.Client::new(base_url="http://127.0.0.1:8000")
+  guard integration_client() is Some(client) else { return }
   let ts = @async.now()
   let user = "mbt_list_\{ts}"
   let created = client.create_memory(
@@ -87,14 +97,14 @@ async test "integration/list" {
 
 ///|
 async test "integration/system_status" {
-  let client = @powermem.Client::new(base_url="http://127.0.0.1:8000")
+  guard integration_client() is Some(client) else { return }
   let status = client.system_status()
   guard status.version != "" else { fail("expected non-empty version") }
 }
 
 ///|
 async test "integration/delete_user_memories" {
-  let client = @powermem.Client::new(base_url="http://127.0.0.1:8000")
+  guard integration_client() is Some(client) else { return }
   let ts = @async.now()
   let user = "mbt_deluser_\{ts}"
   let created = client.create_memory(
@@ -116,7 +126,7 @@ async test "integration/delete_user_memories" {
 
 ///|
 async test "integration/update_memory" {
-  let client = @powermem.Client::new(base_url="http://127.0.0.1:8000")
+  guard integration_client() is Some(client) else { return }
   let ts = @async.now()
   let user = "mbt_update_\{ts}"
   let created = client.create_memory(
@@ -136,7 +146,7 @@ async test "integration/update_memory" {
 
 ///|
 async test "integration/search_get" {
-  let client = @powermem.Client::new(base_url="http://127.0.0.1:8000")
+  guard integration_client() is Some(client) else { return }
   let ts = @async.now()
   let user = "mbt_searchget_\{ts}"
   let created = client.create_memory(
@@ -154,7 +164,7 @@ async test "integration/search_get" {
 
 ///|
 async test "integration/list_memory_users" {
-  let client = @powermem.Client::new(base_url="http://127.0.0.1:8000")
+  guard integration_client() is Some(client) else { return }
   let ts = @async.now()
   let user = "mbt_listusers_\{ts}"
   let created = client.create_memory(
@@ -169,7 +179,7 @@ async test "integration/list_memory_users" {
 
 ///|
 async test "integration/memory_quality" {
-  let client = @powermem.Client::new(base_url="http://127.0.0.1:8000")
+  guard integration_client() is Some(client) else { return }
   let metrics = client.get_memory_quality()
   guard metrics.total_memories >= 0 else {
     fail("expected non-negative total_memories")
@@ -181,7 +191,7 @@ async test "integration/memory_quality" {
 
 ///|
 async test "integration/batch_delete_memories" {
-  let client = @powermem.Client::new(base_url="http://127.0.0.1:8000")
+  guard integration_client() is Some(client) else { return }
   let ts = @async.now()
   let user = "mbt_batchdel_\{ts}"
   let created = client.create_memory(
@@ -202,7 +212,7 @@ async test "integration/batch_delete_memories" {
 
 ///|
 async test "integration/agent_memories" {
-  let client = @powermem.Client::new(base_url="http://127.0.0.1:8000")
+  guard integration_client() is Some(client) else { return }
   let ts = @async.now()
   let agent = "mbt_agent_\{ts}"
   let memory = client.create_agent_memory(
@@ -226,7 +236,7 @@ async test "integration/agent_memories" {
 
 ///|
 async test "integration/batch_create_memories" {
-  let client = @powermem.Client::new(base_url="http://127.0.0.1:8000")
+  guard integration_client() is Some(client) else { return }
   let ts = @async.now()
   let user = "mbt_batchcreate_\{ts}"
   let inputs : Array[@powermem.MemoryInput] = [
@@ -258,7 +268,7 @@ async test "integration/batch_create_memories" {
 
 ///|
 async test "integration/batch_update_memories" {
-  let client = @powermem.Client::new(base_url="http://127.0.0.1:8000")
+  guard integration_client() is Some(client) else { return }
   let ts = @async.now()
   let user = "mbt_batchupd_\{ts}"
   let created = client.create_memory(
@@ -283,7 +293,7 @@ async test "integration/batch_update_memories" {
 
 ///|
 async test "integration/get_memory_stats" {
-  let client = @powermem.Client::new(base_url="http://127.0.0.1:8000")
+  guard integration_client() is Some(client) else { return }
   let result = client.get_memory_stats()
   match result {
     Object(_) => ()
@@ -296,7 +306,7 @@ async test "integration/export_memories" {
   // PowerMem 1.1.0 raises a 500 when a memory row is missing memory_id;
   // treat both success and that known 500 as passing. The test still
   // verifies the SDK reaches the endpoint.
-  let client = @powermem.Client::new(base_url="http://127.0.0.1:8000")
+  guard integration_client() is Some(client) else { return }
   let result = try? client.export_memories(format="json")
   let ok = match result {
     Ok(text) => text != ""
@@ -308,14 +318,14 @@ async test "integration/export_memories" {
 
 ///|
 async test "integration/get_metrics" {
-  let client = @powermem.Client::new(base_url="http://127.0.0.1:8000")
+  guard integration_client() is Some(client) else { return }
   let text = client.get_metrics()
   guard text != "" else { fail("expected non-empty metrics payload") }
 }
 
 ///|
 async test "integration/get_user_memories" {
-  let client = @powermem.Client::new(base_url="http://127.0.0.1:8000")
+  guard integration_client() is Some(client) else { return }
   let ts = @async.now()
   let user = "mbt_getusermem_\{ts}"
   let created = client.create_memory(
@@ -332,7 +342,7 @@ async test "integration/get_user_memories" {
 
 ///|
 async test "integration/update_user_memory" {
-  let client = @powermem.Client::new(base_url="http://127.0.0.1:8000")
+  guard integration_client() is Some(client) else { return }
   let ts = @async.now()
   let user = "mbt_updusermem_\{ts}"
   let created = client.create_memory(
@@ -359,7 +369,7 @@ async test "integration/update_user_memory" {
 
 ///|
 async test "integration/list_user_profiles" {
-  let client = @powermem.Client::new(base_url="http://127.0.0.1:8000")
+  guard integration_client() is Some(client) else { return }
   let result = client.list_user_profiles(limit=5)
   match result {
     Object(_) | Array(_) => ()
@@ -369,7 +379,7 @@ async test "integration/list_user_profiles" {
 
 ///|
 async test "integration/user_profile_lifecycle" {
-  let client = @powermem.Client::new(base_url="http://127.0.0.1:8000")
+  guard integration_client() is Some(client) else { return }
   let ts = @async.now()
   let user = "mbt_profile_\{ts}"
   let messages : Array[@powermem.Message] = [
@@ -391,7 +401,7 @@ async test "integration/user_profile_lifecycle" {
 
 ///|
 async test "integration/share_agent_memories" {
-  let client = @powermem.Client::new(base_url="http://127.0.0.1:8000")
+  guard integration_client() is Some(client) else { return }
   let ts = @async.now()
   let source = "mbt_src_\{ts}"
   let target = "mbt_tgt_\{ts}"
