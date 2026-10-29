@@ -1,0 +1,25 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: hustcer/setup-moonbit@develop
+        with:
+          version: nightly
+      - run: moon update
+      - run: moon check --target native
+      # Integration tests require a separate PowerMem server and LLM service.
+      - run: moon test client_wbtest.mbt --target native
+      - run: moon test client_wbtest.mbt --target native --release
+      - run: moon info --target native && moon fmt && git diff --exit-code

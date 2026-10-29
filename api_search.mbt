@@ -7,7 +7,7 @@ pub async fn Client::search(
   agent_id? : String,
   run_id? : String,
   filters? : Json,
-  limit? : Int,
+  limit? : Int32,
 ) -> SearchResponse raise PowerMemError {
   let body = json_obj([
     ("query", Some(query.to_json())),
@@ -29,7 +29,7 @@ pub async fn Client::search_get(
   user_id? : String,
   agent_id? : String,
   run_id? : String,
-  limit? : Int,
+  limit? : Int32,
 ) -> SearchResponse raise PowerMemError {
   let params : Array[(String, String)] = [("query", query)]
   add_param(params, "user_id", user_id)

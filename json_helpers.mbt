@@ -17,7 +17,7 @@ fn json_require_int(
   obj : Map[String, Json],
   key : String,
   path : @json.JsonPath,
-) -> Int raise @json.JsonDecodeError {
+) -> Int32 raise @json.JsonDecodeError {
   match obj.get(key) {
     Some(Number(n, ..)) => n.to_int()
     _ => raise @json.JsonDecodeError((path.add_key(key), "expected number"))

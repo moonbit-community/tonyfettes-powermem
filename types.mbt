@@ -10,7 +10,7 @@ pub(all) struct MemoryInput {
 }
 
 ///|
-pub impl ToJson for MemoryInput with to_json(self) {
+pub impl ToJson for MemoryInput with fn to_json(self) {
   let m : Map[String, Json] = {}
   m["content"] = self.content.to_json()
   json_set_opt(m, "user_id", self.user_id)
@@ -22,7 +22,7 @@ pub impl ToJson for MemoryInput with to_json(self) {
 }
 
 ///|
-pub impl @json.FromJson for MemoryInput with from_json(json, path) {
+pub impl @json.FromJson for MemoryInput with fn from_json(json, path) {
   let obj = json_as_object(json, path, "MemoryInput")
   {
     content: json_require_string(obj, "content", path),
@@ -43,7 +43,7 @@ pub(all) struct MemoryUpdateInput {
 }
 
 ///|
-pub impl ToJson for MemoryUpdateInput with to_json(self) {
+pub impl ToJson for MemoryUpdateInput with fn to_json(self) {
   let m : Map[String, Json] = {}
   m["memory_id"] = self.memory_id.to_json()
   json_set_opt(m, "content", self.content)
@@ -52,7 +52,7 @@ pub impl ToJson for MemoryUpdateInput with to_json(self) {
 }
 
 ///|
-pub impl @json.FromJson for MemoryUpdateInput with from_json(json, path) {
+pub impl @json.FromJson for MemoryUpdateInput with fn from_json(json, path) {
   let obj = json_as_object(json, path, "MemoryUpdateInput")
   {
     memory_id: json_require_string(obj, "memory_id", path),
@@ -69,7 +69,7 @@ pub(all) struct Message {
 } derive(Debug)
 
 ///|
-pub impl ToJson for Message with to_json(self) {
+pub impl ToJson for Message with fn to_json(self) {
   Json::object({
     "role": self.role.to_json(),
     "content": self.content.to_json(),
@@ -77,7 +77,7 @@ pub impl ToJson for Message with to_json(self) {
 }
 
 ///|
-pub impl @json.FromJson for Message with from_json(json, path) {
+pub impl @json.FromJson for Message with fn from_json(json, path) {
   let obj = json_as_object(json, path, "Message")
   {
     role: json_require_string(obj, "role", path),

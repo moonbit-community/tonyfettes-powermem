@@ -11,7 +11,7 @@ priv struct Memory {
 }
 
 ///|
-impl @json.FromJson for Memory with from_json(json, path) {
+impl @json.FromJson for Memory with fn from_json(json, path) {
   let obj = expect_object(json, path, "Memory")
   {
     id: require_string(obj, "id", path),
@@ -23,11 +23,11 @@ impl @json.FromJson for Memory with from_json(json, path) {
 ///|
 priv struct MemoryList {
   memories : Array[Memory]
-  total : Int
+  total : Int32
 }
 
 ///|
-impl @json.FromJson for MemoryList with from_json(json, path) {
+impl @json.FromJson for MemoryList with fn from_json(json, path) {
   let obj = expect_object(json, path, "MemoryList")
   {
     memories: require_array(obj, "memories", path),
@@ -43,7 +43,7 @@ priv struct SearchResult {
 }
 
 ///|
-impl @json.FromJson for SearchResult with from_json(json, path) {
+impl @json.FromJson for SearchResult with fn from_json(json, path) {
   let obj = expect_object(json, path, "SearchResult")
   {
     memory_id: require_string(obj, "memory_id", path),
@@ -55,12 +55,12 @@ impl @json.FromJson for SearchResult with from_json(json, path) {
 ///|
 priv struct SearchResponse {
   results : Array[SearchResult]
-  total : Int
+  total : Int32
   query : String
 }
 
 ///|
-impl @json.FromJson for SearchResponse with from_json(json, path) {
+impl @json.FromJson for SearchResponse with fn from_json(json, path) {
   let obj = expect_object(json, path, "SearchResponse")
   {
     results: require_array(obj, "results", path),
@@ -75,9 +75,9 @@ priv struct HealthStatus {
 }
 
 ///|
-impl @json.FromJson for HealthStatus with from_json(json, path) {
+impl @json.FromJson for HealthStatus with fn from_json(json, path) {
   let obj = expect_object(json, path, "HealthStatus")
-  { status: require_string(obj, "status", path) }
+  { status: require_string(obj, "status", path), }
 }
 
 ///|
@@ -89,7 +89,7 @@ priv struct SystemStatus {
 }
 
 ///|
-impl @json.FromJson for SystemStatus with from_json(json, path) {
+impl @json.FromJson for SystemStatus with fn from_json(json, path) {
   let obj = expect_object(json, path, "SystemStatus")
   {
     version: require_string(obj, "version", path),
@@ -105,9 +105,9 @@ priv struct DeletedMemory {
 }
 
 ///|
-impl @json.FromJson for DeletedMemory with from_json(json, path) {
+impl @json.FromJson for DeletedMemory with fn from_json(json, path) {
   let obj = expect_object(json, path, "DeletedMemory")
-  { memory_id: require_string(obj, "memory_id", path) }
+  { memory_id: require_string(obj, "memory_id", path), }
 }
 
 // -----------------------------------------------------------------------------
@@ -144,7 +144,7 @@ fn require_int(
   obj : Map[String, Json],
   key : String,
   path : @json.JsonPath,
-) -> Int raise @json.JsonDecodeError {
+) -> Int32 raise @json.JsonDecodeError {
   match obj.get(key) {
     Some(Number(n, ..)) => n.to_int()
     _ => raise @json.JsonDecodeError((path.add_key(key), "expected number"))

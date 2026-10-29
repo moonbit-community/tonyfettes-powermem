@@ -31,7 +31,9 @@ test "build_request_target percent-encodes special characters" {
 
 ///|
 test "build_request_target rejects invalid base_url" {
-  let result = try? build_request_target("not a url", "/x", [])
+  let result = Ok(build_request_target("not a url", "/x", [])) catch {
+    e => Err(e)
+  }
   guard result is Err(_) else { fail("expected error for invalid base_url") }
 }
 
@@ -53,8 +55,8 @@ test "add_param with Some and None" {
   add_int_param(params, "c", Some(5))
   add_int_param(params, "d", None)
   inspect(params.length(), content="2")
-  inspect(params[0], content="(\"a\", \"val\")")
-  inspect(params[1], content="(\"c\", \"5\")")
+  assert_eq(params[0], ("a", "val"))
+  @debug.debug_inspect(params[1], content="(\"c\", \"5\")")
 }
 
 ///|
@@ -80,7 +82,7 @@ test "extract_response_data api error" {
   let body =
     #|{"success": false, "message": "Not found"}
   let json = @json.parse(body)
-  let result = try? extract_response_data(json)
+  let result = Ok(extract_response_data(json)) catch { e => Err(e) }
   guard result is Err(_) else { fail("expected error") }
 }
 
@@ -92,8 +94,8 @@ test "parse MemoryData from json" {
   let mem : MemoryData = parse_response(json)
   inspect(mem.id, content="100")
   inspect(mem.content, content="test memory")
-  inspect(mem.user_id, content="Some(\"u1\")")
-  inspect(mem.agent_id, content="None")
+  @debug.debug_inspect(mem.user_id, content="Some(\"u1\")")
+  @debug.debug_inspect(mem.agent_id, content="None")
 }
 
 ///|
@@ -110,23 +112,29 @@ test "parse MemoryList from json" {
 ///|
 test "build_default_headers without api_key" {
   let h = build_default_headers(None)
-  inspect(h.get("Content-Type"), content="Some(\"application/json\")")
-  inspect(h.get("X-API-Key"), content="None")
+  @debug.debug_inspect(
+    h.get("content-type"),
+    content="Some(\"application/json\")",
+  )
+  @debug.debug_inspect(h.get("x-api-key"), content="None")
 }
 
 ///|
 test "build_default_headers with api_key" {
   let h = build_default_headers(Some("test-key"))
-  inspect(h.get("Content-Type"), content="Some(\"application/json\")")
-  inspect(h.get("X-API-Key"), content="Some(\"test-key\")")
+  @debug.debug_inspect(
+    h.get("content-type"),
+    content="Some(\"application/json\")",
+  )
+  @debug.debug_inspect(h.get("x-api-key"), content="Some(\"test-key\")")
 }
 
 ///|
 test "Client construction" {
   let client = Client::new(base_url="http://example.com:9000", api_key="key123")
   inspect(client.base_url, content="http://example.com:9000")
-  inspect(client.api_key, content="Some(\"key123\")")
+  @debug.debug_inspect(client.api_key, content="Some(\"key123\")")
   let default_client = Client::new()
   inspect(default_client.base_url, content="http://localhost:8000")
-  inspect(default_client.api_key, content="None")
+  @debug.debug_inspect(default_client.api_key, content="None")
 }
