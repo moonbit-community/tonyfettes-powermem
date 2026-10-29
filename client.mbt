@@ -6,10 +6,10 @@ pub struct Client {
 
 ///|
 pub fn Client::new(
-  base_url? : String = "http://localhost:8000",
+  base_url~ : String = "http://localhost:8000",
   api_key? : String,
 ) -> Client {
-  { base_url, api_key }
+  { base_url, api_key, }
 }
 
 ///|
@@ -59,7 +59,7 @@ fn add_param(
 fn add_int_param(
   params : Array[(String, String)],
   key : String,
-  value : Int?,
+  value : Int32?,
 ) -> Unit {
   match value {
     Some(v) => params.push((key, v.to_string()))
@@ -86,8 +86,12 @@ fn[T : FromJson] parse_response(json : Json) -> T raise PowerMemError {
 }
 
 ///|
-fn build_default_headers(api_key : String?) -> Map[String, String] {
-  let headers : Map[String, String] = { "Content-Type": "application/json" }
+fn build_default_headers(
+  api_key : String?,
+) -> Map[@http.CaseInsensitiveString, String] {
+  let headers : Map[@http.CaseInsensitiveString, String] = {
+    "Content-Type": "application/json",
+  }
   match api_key {
     Some(key) => headers["X-API-Key"] = key
     None => ()

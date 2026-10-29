@@ -44,8 +44,8 @@ pub async fn Client::batch_create_memories(
 /// List memories with pagination and optional filters.
 pub async fn Client::list_memories(
   self : Client,
-  limit? : Int,
-  offset? : Int,
+  limit? : Int32,
+  offset? : Int32,
   sort_by? : String,
   user_id? : String,
   agent_id? : String,
@@ -171,7 +171,7 @@ pub async fn Client::list_memory_users(
 pub async fn Client::export_memories(
   self : Client,
   format? : String,
-  limit? : Int,
+  limit? : Int32,
 ) -> String raise PowerMemError {
   let params : Array[(String, String)] = []
   add_param(params, "format", format)

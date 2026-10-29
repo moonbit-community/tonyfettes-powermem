@@ -3,8 +3,8 @@
 pub async fn Client::list_agent_memories(
   self : Client,
   agent_id~ : String,
-  limit? : Int,
-  offset? : Int,
+  limit? : Int32,
+  offset? : Int32,
 ) -> MemoryList raise PowerMemError {
   let params : Array[(String, String)] = []
   add_int_param(params, "limit", limit)
@@ -67,8 +67,8 @@ pub async fn Client::share_agent_memories(
 pub async fn Client::get_shared_memories(
   self : Client,
   agent_id~ : String,
-  limit? : Int,
-  offset? : Int,
+  limit? : Int32,
+  offset? : Int32,
 ) -> MemoryList raise PowerMemError {
   let params : Array[(String, String)] = []
   add_int_param(params, "limit", limit)

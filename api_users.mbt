@@ -48,8 +48,8 @@ pub async fn Client::delete_user_profile(
 pub async fn Client::get_user_memories(
   self : Client,
   user_id~ : String,
-  limit? : Int,
-  offset? : Int,
+  limit? : Int32,
+  offset? : Int32,
 ) -> MemoryList raise PowerMemError {
   let params : Array[(String, String)] = []
   add_int_param(params, "limit", limit)
@@ -104,8 +104,8 @@ pub async fn Client::delete_user_memories(
 /// List all user profiles.
 pub async fn Client::list_user_profiles(
   self : Client,
-  limit? : Int,
-  offset? : Int,
+  limit? : Int32,
+  offset? : Int32,
   fuzzy_match? : String,
 ) -> Json raise PowerMemError {
   let params : Array[(String, String)] = []

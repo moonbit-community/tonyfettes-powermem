@@ -219,7 +219,7 @@ async fn example_delete(client : Client, memory_id~ : String) -> Unit {
 /// code units. Appends "..." when truncation happens. `offset_of_nth_char`
 /// keeps surrogate pairs intact — raw offset slicing on a String can split
 /// them and abort.
-fn truncate(s : String, n : Int) -> String {
+fn truncate(s : String, n : Int32) -> String {
   if !s.char_length_ge(n + 1) {
     return s
   }

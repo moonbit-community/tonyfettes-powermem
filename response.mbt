@@ -11,7 +11,7 @@ pub(all) struct MemoryData {
 }
 
 ///|
-pub impl ToJson for MemoryData with to_json(self) {
+pub impl ToJson for MemoryData with fn to_json(self) {
   let m : Map[String, Json] = {}
   m["id"] = self.id.to_json()
   m["content"] = self.content.to_json()
@@ -25,7 +25,7 @@ pub impl ToJson for MemoryData with to_json(self) {
 }
 
 ///|
-pub impl @json.FromJson for MemoryData with from_json(json, path) {
+pub impl @json.FromJson for MemoryData with fn from_json(json, path) {
   let obj = json_as_object(json, path, "MemoryData")
   {
     id: json_require_string(obj, "id", path),
@@ -42,13 +42,13 @@ pub impl @json.FromJson for MemoryData with from_json(json, path) {
 ///|
 pub(all) struct MemoryList {
   memories : Array[MemoryData]
-  total : Int
-  limit : Int
-  offset : Int
+  total : Int32
+  limit : Int32
+  offset : Int32
 }
 
 ///|
-pub impl ToJson for MemoryList with to_json(self) {
+pub impl ToJson for MemoryList with fn to_json(self) {
   let m : Map[String, Json] = {}
   m["memories"] = self.memories.to_json()
   m["total"] = self.total.to_json()
@@ -58,7 +58,7 @@ pub impl ToJson for MemoryList with to_json(self) {
 }
 
 ///|
-pub impl @json.FromJson for MemoryList with from_json(json, path) {
+pub impl @json.FromJson for MemoryList with fn from_json(json, path) {
   let obj = json_as_object(json, path, "MemoryList")
   {
     memories: json_require_array(obj, "memories", path),
@@ -77,7 +77,7 @@ pub(all) struct SearchResult {
 }
 
 ///|
-pub impl ToJson for SearchResult with to_json(self) {
+pub impl ToJson for SearchResult with fn to_json(self) {
   let m : Map[String, Json] = {}
   m["memory_id"] = self.memory_id.to_json()
   m["content"] = self.content.to_json()
@@ -87,7 +87,7 @@ pub impl ToJson for SearchResult with to_json(self) {
 }
 
 ///|
-pub impl @json.FromJson for SearchResult with from_json(json, path) {
+pub impl @json.FromJson for SearchResult with fn from_json(json, path) {
   let obj = json_as_object(json, path, "SearchResult")
   {
     memory_id: json_require_string(obj, "memory_id", path),
@@ -100,12 +100,12 @@ pub impl @json.FromJson for SearchResult with from_json(json, path) {
 ///|
 pub(all) struct SearchResponse {
   results : Array[SearchResult]
-  total : Int
+  total : Int32
   query : String
 }
 
 ///|
-pub impl ToJson for SearchResponse with to_json(self) {
+pub impl ToJson for SearchResponse with fn to_json(self) {
   let m : Map[String, Json] = {}
   m["results"] = self.results.to_json()
   m["total"] = self.total.to_json()
@@ -114,7 +114,7 @@ pub impl ToJson for SearchResponse with to_json(self) {
 }
 
 ///|
-pub impl @json.FromJson for SearchResponse with from_json(json, path) {
+pub impl @json.FromJson for SearchResponse with fn from_json(json, path) {
   let obj = json_as_object(json, path, "SearchResponse")
   {
     results: json_require_array(obj, "results", path),
@@ -132,7 +132,7 @@ pub(all) struct UserProfile {
 }
 
 ///|
-pub impl ToJson for UserProfile with to_json(self) {
+pub impl ToJson for UserProfile with fn to_json(self) {
   let m : Map[String, Json] = {}
   m["user_id"] = self.user_id.to_json()
   json_set_opt(m, "profile_content", self.profile_content)
@@ -142,7 +142,7 @@ pub impl ToJson for UserProfile with to_json(self) {
 }
 
 ///|
-pub impl @json.FromJson for UserProfile with from_json(json, path) {
+pub impl @json.FromJson for UserProfile with fn from_json(json, path) {
   let obj = json_as_object(json, path, "UserProfile")
   {
     user_id: json_require_string(obj, "user_id", path),
@@ -155,13 +155,13 @@ pub impl @json.FromJson for UserProfile with from_json(json, path) {
 ///|
 /// Result of `share_agent_memories`.
 pub(all) struct AgentShareResult {
-  shared_count : Int
+  shared_count : Int32
   source_agent_id : String
   target_agent_id : String
 } derive(Debug)
 
 ///|
-pub impl ToJson for AgentShareResult with to_json(self) {
+pub impl ToJson for AgentShareResult with fn to_json(self) {
   Json::object({
     "shared_count": self.shared_count.to_json(),
     "source_agent_id": self.source_agent_id.to_json(),
@@ -170,7 +170,7 @@ pub impl ToJson for AgentShareResult with to_json(self) {
 }
 
 ///|
-pub impl @json.FromJson for AgentShareResult with from_json(json, path) {
+pub impl @json.FromJson for AgentShareResult with fn from_json(json, path) {
   let obj = json_as_object(json, path, "AgentShareResult")
   {
     shared_count: json_require_int(obj, "shared_count", path),
@@ -185,14 +185,14 @@ pub(all) struct HealthStatus {
 } derive(Debug)
 
 ///|
-pub impl ToJson for HealthStatus with to_json(self) {
+pub impl ToJson for HealthStatus with fn to_json(self) {
   Json::object({ "status": self.status.to_json() })
 }
 
 ///|
-pub impl @json.FromJson for HealthStatus with from_json(json, path) {
+pub impl @json.FromJson for HealthStatus with fn from_json(json, path) {
   let obj = json_as_object(json, path, "HealthStatus")
-  { status: json_require_string(obj, "status", path) }
+  { status: json_require_string(obj, "status", path), }
 }
 
 ///|
@@ -207,7 +207,7 @@ pub(all) struct SystemStatus {
 }
 
 ///|
-pub impl ToJson for SystemStatus with to_json(self) {
+pub impl ToJson for SystemStatus with fn to_json(self) {
   let m : Map[String, Json] = {}
   m["version"] = self.version.to_json()
   m["status"] = self.status.to_json()
@@ -220,7 +220,7 @@ pub impl ToJson for SystemStatus with to_json(self) {
 }
 
 ///|
-pub impl @json.FromJson for SystemStatus with from_json(json, path) {
+pub impl @json.FromJson for SystemStatus with fn from_json(json, path) {
   let obj = json_as_object(json, path, "SystemStatus")
   {
     version: json_require_string(obj, "version", path),
@@ -235,14 +235,14 @@ pub impl @json.FromJson for SystemStatus with from_json(json, path) {
 
 ///|
 pub(all) struct QualityMetrics {
-  total_memories : Int
-  low_quality_count : Int
+  total_memories : Int32
+  low_quality_count : Int32
   low_quality_ratio : Double
   quality_criteria : Json?
 }
 
 ///|
-pub impl ToJson for QualityMetrics with to_json(self) {
+pub impl ToJson for QualityMetrics with fn to_json(self) {
   let m : Map[String, Json] = {}
   m["total_memories"] = self.total_memories.to_json()
   m["low_quality_count"] = self.low_quality_count.to_json()
@@ -252,7 +252,7 @@ pub impl ToJson for QualityMetrics with to_json(self) {
 }
 
 ///|
-pub impl @json.FromJson for QualityMetrics with from_json(json, path) {
+pub impl @json.FromJson for QualityMetrics with fn from_json(json, path) {
   let obj = json_as_object(json, path, "QualityMetrics")
   {
     total_memories: json_require_int(obj, "total_memories", path),
@@ -268,14 +268,14 @@ pub(all) struct DeletedMemory {
 } derive(Debug)
 
 ///|
-pub impl ToJson for DeletedMemory with to_json(self) {
+pub impl ToJson for DeletedMemory with fn to_json(self) {
   Json::object({ "memory_id": self.memory_id.to_json() })
 }
 
 ///|
-pub impl @json.FromJson for DeletedMemory with from_json(json, path) {
+pub impl @json.FromJson for DeletedMemory with fn from_json(json, path) {
   let obj = json_as_object(json, path, "DeletedMemory")
-  { memory_id: json_require_string(obj, "memory_id", path) }
+  { memory_id: json_require_string(obj, "memory_id", path), }
 }
 
 ///|
@@ -283,13 +283,13 @@ pub impl @json.FromJson for DeletedMemory with from_json(json, path) {
 /// deleted along with the user_id for traceability.
 pub(all) struct UserMemoryDeleteResult {
   user_id : String
-  deleted_count : Int
-  failed_count : Int
-  total : Int
+  deleted_count : Int32
+  failed_count : Int32
+  total : Int32
 } derive(Debug)
 
 ///|
-pub impl ToJson for UserMemoryDeleteResult with to_json(self) {
+pub impl ToJson for UserMemoryDeleteResult with fn to_json(self) {
   Json::object({
     "user_id": self.user_id.to_json(),
     "deleted_count": self.deleted_count.to_json(),
@@ -299,7 +299,7 @@ pub impl ToJson for UserMemoryDeleteResult with to_json(self) {
 }
 
 ///|
-pub impl @json.FromJson for UserMemoryDeleteResult with from_json(json, path) {
+pub impl @json.FromJson for UserMemoryDeleteResult with fn from_json(json, path) {
   let obj = json_as_object(json, path, "UserMemoryDeleteResult")
   {
     user_id: json_require_string(obj, "user_id", path),
@@ -318,7 +318,7 @@ pub(all) struct SystemDeleteResult {
 } derive(Debug)
 
 ///|
-pub impl ToJson for SystemDeleteResult with to_json(self) {
+pub impl ToJson for SystemDeleteResult with fn to_json(self) {
   Json::object({
     "deleted": self.deleted.to_json(),
     "filters": self.filters.to_json(),
@@ -326,7 +326,7 @@ pub impl ToJson for SystemDeleteResult with to_json(self) {
 }
 
 ///|
-pub impl @json.FromJson for SystemDeleteResult with from_json(json, path) {
+pub impl @json.FromJson for SystemDeleteResult with fn from_json(json, path) {
   let obj = json_as_object(json, path, "SystemDeleteResult")
   let filters_json = match obj.get("filters") {
     Some(v) => v
@@ -351,7 +351,7 @@ pub(all) struct SystemDeleteFilters {
 } derive(Debug)
 
 ///|
-pub impl ToJson for SystemDeleteFilters with to_json(self) {
+pub impl ToJson for SystemDeleteFilters with fn to_json(self) {
   let m : Map[String, Json] = {}
   json_set_opt(m, "user_id", self.user_id)
   json_set_opt(m, "agent_id", self.agent_id)
@@ -360,7 +360,7 @@ pub impl ToJson for SystemDeleteFilters with to_json(self) {
 }
 
 ///|
-pub impl @json.FromJson for SystemDeleteFilters with from_json(json, path) {
+pub impl @json.FromJson for SystemDeleteFilters with fn from_json(json, path) {
   let obj = json_as_object(json, path, "SystemDeleteFilters")
   {
     user_id: json_opt_string(obj, "user_id"),
@@ -376,13 +376,13 @@ pub impl @json.FromJson for SystemDeleteFilters with from_json(json, path) {
 pub(all) struct BatchDeleteResult {
   deleted : Json
   failed : Json?
-  total : Int
-  deleted_count : Int
-  failed_count : Int
+  total : Int32
+  deleted_count : Int32
+  failed_count : Int32
 }
 
 ///|
-pub impl ToJson for BatchDeleteResult with to_json(self) {
+pub impl ToJson for BatchDeleteResult with fn to_json(self) {
   let m : Map[String, Json] = {}
   m["deleted"] = self.deleted
   json_set_opt(m, "failed", self.failed)
@@ -393,7 +393,7 @@ pub impl ToJson for BatchDeleteResult with to_json(self) {
 }
 
 ///|
-pub impl @json.FromJson for BatchDeleteResult with from_json(json, path) {
+pub impl @json.FromJson for BatchDeleteResult with fn from_json(json, path) {
   let obj = json_as_object(json, path, "BatchDeleteResult")
   let deleted = match obj.get("deleted") {
     Some(v) => v

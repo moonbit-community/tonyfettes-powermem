@@ -5,7 +5,7 @@
 
 ///|
 priv suberror ApiError {
-  Http(status_code~ : Int, body~ : String)
+  Http(status_code~ : Int32, body~ : String)
   Server(String)
   Parse(String)
   Request(String)
@@ -19,7 +19,7 @@ priv struct Client {
 
 ///|
 fn Client::new(base_url : String, api_key? : String) -> Client {
-  { base_url, api_key }
+  { base_url, api_key, }
 }
 
 // -----------------------------------------------------------------------------
@@ -27,8 +27,10 @@ fn Client::new(base_url : String, api_key? : String) -> Client {
 // -----------------------------------------------------------------------------
 
 ///|
-fn Client::headers(self : Client) -> Map[String, String] {
-  let h : Map[String, String] = { "Content-Type": "application/json" }
+fn Client::headers(self : Client) -> Map[@http.CaseInsensitiveString, String] {
+  let h : Map[@http.CaseInsensitiveString, String] = {
+    "Content-Type": "application/json",
+  }
   match self.api_key {
     Some(key) => h["X-API-Key"] = key
     None => ()
@@ -117,7 +119,7 @@ fn percent_encode(value : String) -> String {
       code == 0x5F ||
       code == 0x7E
     if is_unreserved {
-      out.write_char(Int::unsafe_to_char(code))
+      out.write_char(Int32::unsafe_to_char(code))
     } else {
       out.write_char('%')
       out.write_char(hex_digit(code / 16))
@@ -128,11 +130,11 @@ fn percent_encode(value : String) -> String {
 }
 
 ///|
-fn hex_digit(n : Int) -> Char {
+fn hex_digit(n : Int32) -> Char {
   if n < 10 {
-    Int::unsafe_to_char('0'.to_int() + n)
+    Int32::unsafe_to_char('0'.to_int() + n)
   } else {
-    Int::unsafe_to_char('A'.to_int() + (n - 10))
+    Int32::unsafe_to_char('A'.to_int() + (n - 10))
   }
 }
 
@@ -208,8 +210,8 @@ async fn Client::list_memories(
   self : Client,
   user_id? : String,
   agent_id? : String,
-  limit? : Int,
-  offset? : Int,
+  limit? : Int32,
+  offset? : Int32,
 ) -> MemoryList raise ApiError {
   let query : Array[(String, String)] = []
   if user_id is Some(v) {
@@ -233,7 +235,7 @@ async fn Client::search_memories(
   query~ : String,
   user_id? : String,
   agent_id? : String,
-  limit? : Int,
+  limit? : Int32,
 ) -> SearchResponse raise ApiError {
   let body = json_object([
     ("query", Some(query.to_json())),

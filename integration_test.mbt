@@ -48,14 +48,18 @@ async test "integration/get_and_delete" {
   let user = "mbt_getdel_\{ts}"
   let created = client.create_memory(content="The user uses vim", user_id=user)
   guard created.length() > 0 else { fail("no memories created") }
-  let get_result = try? client.get_memory(memory_id=created[0].id)
+  let get_result = Ok(client.get_memory(memory_id=created[0].id)) catch {
+    e => Err(e)
+  }
   guard get_result is Ok(_) else {
     match get_result {
       Err(e) => fail("get_memory failed: " + @debug.to_string(e))
       _ => fail("unreachable")
     }
   }
-  let del_result = try? client.delete_memory(memory_id=created[0].id)
+  let del_result = Ok(client.delete_memory(memory_id=created[0].id)) catch {
+    e => Err(e)
+  }
   guard del_result is Ok(_) else {
     match del_result {
       Err(e) => fail("delete_memory failed: " + @debug.to_string(e))
@@ -75,7 +79,7 @@ async test "integration/list" {
     user_id=user,
   )
   guard created.length() > 0 else { fail("no memories created") }
-  let list_result = try? client.list_memories(user_id=user)
+  let list_result = Ok(client.list_memories(user_id=user)) catch { e => Err(e) }
   guard list_result is Ok(_) else {
     match list_result {
       Err(e) => fail("list_memories failed: " + @debug.to_string(e))
@@ -297,7 +301,7 @@ async test "integration/export_memories" {
   // treat both success and that known 500 as passing. The test still
   // verifies the SDK reaches the endpoint.
   let client = @powermem.Client::new(base_url="http://127.0.0.1:8000")
-  let result = try? client.export_memories(format="json")
+  let result = Ok(client.export_memories(format="json")) catch { e => Err(e) }
   let ok = match result {
     Ok(text) => text != ""
     Err(HttpError(status_code=500, ..)) => true
@@ -343,11 +347,15 @@ async test "integration/update_user_memory" {
   // PowerMem 1.1.0 returns 500 from this endpoint because the response
   // serializer chokes on a missing memory_id field. The update itself
   // succeeds server-side; treat the known 500 as a pass.
-  let result = try? client.update_user_memory(
-    user_id=user,
-    memory_id=created[0].id,
-    content="The user drives to work",
-  )
+  let result = Ok(
+    client.update_user_memory(
+      user_id=user,
+      memory_id=created[0].id,
+      content="The user drives to work",
+    ),
+  ) catch {
+    e => Err(e)
+  }
   let ok = match result {
     Ok(updated) => updated.content == "The user drives to work"
     Err(HttpError(status_code=500, ..)) => true
@@ -373,8 +381,8 @@ async test "integration/user_profile_lifecycle" {
   let ts = @async.now()
   let user = "mbt_profile_\{ts}"
   let messages : Array[@powermem.Message] = [
-    { role: "user", content: "Hi, I am Sam and I live in Berlin." },
-    { role: "user", content: "I work as a software engineer." },
+    { role: "user", content: "Hi, I am Sam and I live in Berlin.", },
+    { role: "user", content: "I work as a software engineer.", },
   ]
   let extract_result = client.extract_user_profile(user_id=user, messages~)
   match extract_result {
@@ -385,7 +393,7 @@ async test "integration/user_profile_lifecycle" {
   guard profile.user_id == user else {
     fail("expected user_id \{user}, got \{profile.user_id}")
   }
-  ignore(try? client.delete_user_profile(user_id=user))
+  ignore(Ok(client.delete_user_profile(user_id=user)) catch { e => Err(e) })
   ignore(client.delete_user_memories(user_id=user))
 }
 
